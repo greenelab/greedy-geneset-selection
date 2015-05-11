@@ -26,8 +26,8 @@ TCGAGeneList=`cat Data/Candidate.Genes/TCGA2011.sig.mapped.csv`
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Inclusion/Exclusion of samples
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
+echo "Creating Inclusion/Exclusion list of samples..."
+Rscript Scripts/Inclusion_doppelgangR_v2.R
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Data processing
@@ -37,6 +37,7 @@ TCGAGeneList=`cat Data/Candidate.Genes/TCGA2011.sig.mapped.csv`
 echo "Creating Binary Correlation Matrices..."
 Rscript Scripts/Process_Data_args.R $BinTHRESH 2>> R.error.log
 
+Rscript Scripts/Eligible.R
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Perform the Naive Gene selection using DM 
