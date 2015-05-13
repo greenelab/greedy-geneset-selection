@@ -17,8 +17,8 @@ library(outliers)
 vars <- c("sample_type", "histological_type", "grade", "primarysite", "arrayedsite", "summarystage", "tumorstage", "substage", "pltx", "tax", "neo", "recurrence_status", "vital_status", "os_binary", "relapse_binary", "site_of_tumor_first_recurrence", "primary_therapy_outcome_success", "debulking")
 minimumSamples <- 120
 
-#Esets that should never be included: Dressman, Bentink, and Pils datasets
-excludeEsets <- c("PMID17290060_eset", "E.MTAB.386_eset", "GSE49997_eset")
+#Esets that shouldn't  be included: Dressman, Crijns (custom array), Bentink (Illumina DASL), and Pils (custom array) datasets
+excludeEsets <- c("PMID17290060_eset", "GSE13876_eset", "E.MTAB.386_eset", "GSE49997_eset")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -168,20 +168,8 @@ simpleExclusion <- function(eset)
 #All the datasets within the curatedOvarianData package
 esets <- getAllDataSets("curatedOvarianData")
 
-#load the Konecny data
-load("Data/Mayo/Mayo.Rda")
-
 #Use the inclusion/exclusion decision tree to filter samples in all curatedOvarainData datasets
 inclusionTable <- exclusionTable(esets)
-
-#Use the inclusion/exclusion decision tree on the Konecny data
-inclusionTable.mayo <- simpleExclusion(mayo.eset)
-
-#Combine the inclusion results from curatedOvarianData and Konecny
-inclusionTable[[1]] <- cbind(inclusionTable[[1]], inclusionTable.mayo[[1]])
-
-#The first list element in the inclusionTable is the data.frame which details the creation of the analytic set and how many samples were excluded and why
-colnames(inclusionTable[[1]])[ncol(inclusionTable[[1]])] <- "Mayo.eset"
 
 #Save the data.frame to the harddrive
 write.csv(inclusionTable[[1]], "Data/Inclusions.csv")
@@ -194,7 +182,7 @@ goodSamples <- inclusionTable[[2]]
 #Remove the extra TCGA data (rnaseq and mirna)
 goodSamples <- goodSamples[-1 * grep("rna|RNA", names(goodSamples))]
 
-#Only consider the esets with the minimum number of samples
+#Only consider the esets with at least the minimum number of samples
 esetList.chosen <- list()
 goodSamples.chosen <- list()
 for(i in 1:(length(goodSamples)))
@@ -231,12 +219,8 @@ for(i in 1:(length(goodSamples)))
 }
 names(esetList.chosen) <- names(goodSamples.chosen)
 
-#Add the konecny data to the esetList.chosen and goodSamples.chosen
-esetList.chosen[[length(esetList.chosen)+1]] <- mayo.eset[,inclusionTable.mayo[[2]]]
-goodSamples.chosen[[length(esetList.chosen)]] <- inclusionTable.mayo[[2]]
-names(esetList.chosen)[length(esetList.chosen)] <- names(goodSamples.chosen)[length(esetList.chosen)] <- "mayo.eset"
 
-#Pre-process teh esets to improve matching
+#Pre-process the esets to improve matching
 testesets <- lapply(esetList.chosen, function(X){  
   X$alt_sample_name <- paste(X$sample_type, gsub("[^0-9]", "", X$alt_sample_name), sep="_")
   pData(X) <- pData(X)[, !grepl("uncurated_author_metadata", colnames(pData(X)))]
@@ -258,32 +242,8 @@ for(i in 1:length(result1.full))
 write.table(result1.df.full, file="Data/doppelgangR/pairwiseSampleComparisons.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
 
-#Use doppelgangR to find similar sample pairs in TCGA and konecny data sets using only the expression data
-data(TCGA_eset)
-result2 <- doppelgangR(list(TCGA_eset=TCGA_eset, mayo.eset=mayo.eset), corFinder.args=list(use.ComBat=TRUE), phenoFinder.args=NULL, cache.dir=NULL)
-
-#Process the doppelgangR results into data.frames and write to the harddrive
-result2 <- doppelgangR(list(TCGA_eset=TCGA_eset[,inclusionTable[[2]]["TCGA_eset"]], mayo.eset=mayo.eset[,inclusionTable.mayo[[2]]]), corFinder.args=list(use.ComBat=TRUE), phenoFinder.args=NULL, cache.dir=NULL)
-result2.df <- summary(result2)
-result2.full <- result2@fullresults
-result2.df.full <- c()
-for(i in 1:length(result2.full))
-{
-  tmp <- merge(result2.full[[i]][["expr.doppels"]][["outlierFinder.res"]], result2.full[[i]][["pheno.doppels"]][["outlierFinder.res"]], by=c("sample1", "sample2"))
-  colnames(tmp) <- c("sample1", "sample2", "expr.similarity", "expr.doppel", "pheno.similarity", "pheno.doppel")
-  result2.df.full <- rbind(result2.df.full, tmp)
-}
-write.table(result2.df.full, file="Data/doppelgangR/pairwiseSampleComparisons_MayoTCGA.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-
-#Comebine the doppelgangR results and write to harddrive
-tmp <- rbind(result1.df.full, result2.df.full)
-write.table(tmp[!duplicated(tmp[,c(1,2)]),], file="Data/doppelgangR/pairwiseSampleComparisons_Combined.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-
-
-
 #Get list of expression doppelgangR samples; we assume that if they are doppelgangR sample pairs and they are more than 0.95 simlar then they are duplicates
-doppelSamples <- c(result1.df$sample1[result1.df$expr.doppel & result1.df$expr.similarity > 0.95], result1.df$sample2[result1.df$expr.doppel & result1.df$expr.similarity > 0.95],
-                   result2.df$sample1[result2.df$expr.doppel & result2.df$expr.similarity > 0.95], result2.df$sample2[result2.df$expr.doppel & result2.df$expr.similarity > 0.95])
+doppelSamples <- c(result1.df$sample1[result1.df$expr.doppel & result1.df$expr.similarity > 0.95], result1.df$sample2[result1.df$expr.doppel & result1.df$expr.similarity > 0.95])
 #get rid of the X1: prefixes
 doppelSamples <- unlist(strsplit(doppelSamples,":"))[seq(2,length(doppelSamples)*2,2)]
 doppelSamples <- unique(doppelSamples)

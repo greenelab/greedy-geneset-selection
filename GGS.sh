@@ -23,34 +23,38 @@ YoshGeneList=`cat Data/Candidate.Genes/Yoshihara2012.sig.mapped.csv`
 TCGAGeneList=`cat Data/Candidate.Genes/TCGA2011.sig.mapped.csv`
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#Inclusion/Exclusion of samples
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-echo "Creating Inclusion/Exclusion list of samples..."
-Rscript Scripts/Inclusion_doppelgangR_v2.R
+# #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# #Inclusion/Exclusion of samples
+# #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# echo "Creating Inclusion/Exclusion list of samples..."
+# Rscript Scripts/Inclusion_doppelgangR_v2.R
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#Data processing
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# #Data processing
+# #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#Create the TCGA Affymetrix expression correlation matrices and plots
-echo "Creating Binary Correlation Matrices..."
-Rscript Scripts/Process_Data_args.R $BinTHRESH 2>> R.error.log
+# #Create the TCGA Affymetrix expression correlation matrices and plots
+# echo "Creating Binary Correlation Matrices..."
+# Rscript Scripts/Process_Data_args.R $BinTHRESH 2>> R.error.log
 
-Rscript Scripts/Eligible.R
+# #Define genes eligible to either be directly meaured or predicted
+# Rscript Scripts/Eligible.R
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#Perform the Naive Gene selection using DM 
-#size of 400 and 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-for thresh in `echo $BinTHRESH`
-do
-	for fold in `echo $NFOLD`
-	do
-		echo Performing Naive gene selection using $thresh threshold and $fold redundancy...
-		Rscript Scripts/Naive_args.R $thresh $fold 400 2>/dev/null > Data/Naive/Naive.$thresh.$fold.result.txt
-	done	
-done
+# #Perform Enrichment on the eligible genes for |rP| = 0.6 and redundancy = 1
+
+
+# #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# #Perform the Naive Gene selection using DM 
+# #size of 400 and 
+# #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# for thresh in `echo $BinTHRESH`
+# do
+# 	for fold in `echo $NFOLD`
+# 	do
+# 		echo Performing Naive gene selection using $thresh threshold and $fold redundancy...
+# 		Rscript Scripts/Naive_args.R $thresh $fold 400 2>/dev/null > Data/Naive/Naive.$thresh.$fold.result.txt
+# 	done	
+# done
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -152,10 +156,6 @@ Rscript Imputation/Scripts/Plot_Quantile_Figures.R 2>> R.error.log
 #R script to create the result table containing number of predictable genes and average prediction accuracy in TCGA and validation datasets
 echo "Summarizing Results..."
 Rscript Scripts/Summary_Tables_Quantile.R
-
-
-#Perform Enrichment
-
 
 #Create network diagram
 echo "Creating the GML graph of genes to be used in Cytoskape..."
