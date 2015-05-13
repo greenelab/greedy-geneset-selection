@@ -28,14 +28,18 @@ python GGS.py -h
 
 GGS has been tested using Python 2.7 on Ubuntu 14.04
 Used python libraries:
-
+  docopt
+  numpy
+  itertools
+  collections
+  copy
 
 
 
 Also included in this repository is the workflow used for analyses
-and figures for the GGS manuscript (excluding non-public data from
-Konecny et al.) The bash script GGS.sh runs analyses sequentially 
-and produces plots. 
+and figures for the GGS manuscript (excluding those using non-public 
+data from Konecny et al.) The bash script GGS.sh runs analyses 
+sequentially and produces plots. 
 
 Analyses were performed using R version 3.1.2
 Used R libraries:

@@ -37,9 +37,9 @@ Used python libraries:
 
 
 Also included in this repository is the workflow used for analyses
-and figures for the GGS manuscript (excluding non-public data from
-Konecny et al.) The bash script GGS.sh runs analyses sequentially 
-and produces plots. 
+and figures for the GGS manuscript (excluding those using non-public 
+data from Konecny et al.) The bash script GGS.sh runs analyses 
+sequentially and produces plots. 
 
 Analyses were performed using R version 3.1.2
 Used R libraries:
@@ -55,5 +55,6 @@ Used R libraries:
   ff 2.2
   curatedOvarianData 1.3.4
   igraph 0.7.1
+  doppelgangR (https://github.com/lwaldron/doppelgangR)
 
 
