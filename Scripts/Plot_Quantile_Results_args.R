@@ -6,6 +6,7 @@ args <- commandArgs(trailingOnly=TRUE)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 library(ggplot2)
 library(grid)
+library(curatedOvarianData)
 
 tcga.candidates <- read.delim("Data/Candidate.Genes/TCGA2011.sig.mapped.csv", header=F, sep=",", stringsAsFactors =F)
 yoshihara.candidates <- read.delim("Data/Candidate.Genes/Yoshihara2012.sig.mapped.csv", header=F, sep=",", stringsAsFactors =F)
@@ -224,11 +225,11 @@ results.combined$eligible[results.combined$Threshold == "0.7" & results.combined
 results.combined$eligible[results.combined$Threshold == "0.7" & results.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.cor, 0.7, 3)
 
 results.combined$missed <- pmax(0, results.combined$eligible - (results.combined$nMeasured + results.combined$nCovered))
-results.combined$Redundancy <- results.combined$Fold
+results.combined$Redundancy <- factor(results.combined$Fold)
 
 fig <- ggplot(results.combined, aes(x=nMeasured, y=nCovered, color=Redundancy)) + theme_bw() + 
   geom_line() + geom_point(aes(shape=Redundancy)) +
-  geom_line(aes(x=nMeasured, y=missed, color=Fold), linetype="dotted", size=1) + 
+  geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
   facet_wrap(~ Threshold) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
   theme(text = element_text(size=20), panel.margin=unit(1.5, "lines")) 
 
@@ -248,10 +249,10 @@ results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.7
 results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.7" & results.yoshihara.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.7, 3)
 
 results.yoshihara.combined$missed <- pmax(0, results.yoshihara.combined$eligible - (results.yoshihara.combined$nMeasured + results.yoshihara.combined$nCovered))
-results.yoshihara.combined$Redundancy <- results.yoshihara.combined$Fold
+results.yoshihara.combined$Redundancy <- factor(results.yoshihara.combined$Fold)
 fig <- ggplot(results.yoshihara.combined, aes(x=nMeasured, y=nCovered, color=Redundancy)) + theme_bw() +
   geom_line() + geom_point(aes(shape=Redundancy)) +
-  geom_line(aes(x=nMeasured, y=missed, color=Fold), linetype="dotted", size=1) + 
+  geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
   facet_wrap(~ Threshold) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
   theme(text = element_text(size=20))
 ggsave("Figures/CoverageByNumGenesMeasured.Quantile.Yoshihara.Candidate.Genes.png", fig, width=11, height=6)
@@ -270,11 +271,11 @@ results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.7" & result
 results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.7" & results.tcga.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.7, 3)
 
 results.tcga.combined$missed <- pmax(results.tcga.combined$eligible - (results.tcga.combined$nMeasured + results.tcga.combined$nCovered), 0)
-results.tcga.combined$Redundancy <- results.tcga.combined$Fold
+results.tcga.combined$Redundancy <- factor(results.tcga.combined$Fold)
 
 fig <- ggplot(results.tcga.combined, aes(x=nMeasured, y=nCovered, group=Fold,color=Redundancy)) + theme_bw() +
   geom_line() + geom_point(aes(shape=Redundancy)) +
-  geom_line(aes(x=nMeasured, y=missed, color=Fold), linetype="dotted", size=1) + 
+  geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
   facet_wrap(~ Threshold) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
   theme(text = element_text(size=20))
 ggsave("Figures/CoverageByNumGenesMeasured.Quantile.TCGA.Candidate.Genes.png", fig, width=11, height=6)

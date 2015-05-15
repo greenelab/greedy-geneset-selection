@@ -219,13 +219,6 @@ Bonome <- Bonome[,as.character(bonome.samples$x)]
 rm(GSE26712_eset)
 gc()
 
-#Let's get the Crijns data
-data(GSE13876_eset)
-Crijns <- exprs(GSE13876_eset)
-Crijns.samples <- read.csv("Data/SampleFilter/GSE13876_eset_samplesRemoved_noDoppel.csv")
-Crijns <- Crijns[,as.character(Crijns.samples$x)]
-rm(GSE13876_eset, Crijns.samples)
-gc()
 
 # #Let's get the Dressman data
 # data(PMID17290060_eset)
@@ -276,12 +269,7 @@ TCGA.RNA <- TCGA.RNA[,as.character(tcga.rna.samples)]
 rm(TCGA.RNASeqV2_eset)
 gc()
 
-#Let's get the Goode data (384 samples measured on an Agilent wholegenome_4x44k_v1 platform
-Goode <- read.table("Data/jen.comb.mtx2_exprs_Normalizer.txt", sep="\t")
-Goode <- Goode[,-1]
-mayo.samples <- read.csv("Data/SampleFilter/mayo.eset_samplesRemoved_noDoppel.csv")
-Goode <- Goode[,as.character(mayo.samples$x)]
-cat("Loaded Goode Data \n")
+
 
 
 
@@ -342,15 +330,11 @@ for(k in 1:length(args))
   TCGA.estimated <-normalize.JR(TCGA[covered.genes,])
 
   print(paste("#Measured Genes: ", length(measured.genes), "\t#Covered Genes: ", length(covered.genes)))
+  
   #Subset to only the measured genes
   Tothill.measured <- normalize.JR(Tothill[measured.genes,])
   Yoshihara.measured <- normalize.JR(Yoshihara[intersect(measured.genes, rownames(Yoshihara)),])
   Bonome.measured <- normalize.JR(Bonome[measured.genes,])
-  Crijns.measured <- normalize.JR(Crijns[intersect(measured.genes, rownames(Crijns)),])
-#   Dressman.measured <- normalize.JR(Dressman[intersect(measured.genes, rownames(Dressman)),])
-#   Pils.measured <- normalize.JR(Pils[intersect(measured.genes, rownames(Pils)),])
-#   Karlan.measured <- normalize.JR(Karlan[intersect(measured.genes, rownames(Karlan)),])
-  Goode.measured <- normalize.JR(Goode[intersect(measured.genes, rownames(Goode)),])
   TCGA.RNA.measured <- normalize.JR(TCGA.RNA[intersect(measured.genes, rownames(TCGA.RNA)),])
 
   
@@ -410,14 +394,8 @@ for(k in 1:length(args))
     #Test in the Bonome Data
     prediction.Bonome <- predictExpression(tags, thisGene, Bonome, model, Bonome.measured)
     
-    #We need to test whether the covered and 'tag' genes are present in the Goode dataset
-    prediction.Goode <- predictExpression(tags, thisGene, Goode, model, Goode.measured)
-    
     #We need to test whether the covered and 'tag' genes are present in the Yoshihara dataset
     prediction.Yoshihara <- predictExpression(tags, thisGene, Yoshihara, model, Yoshihara.measured)
-    
-    #We need to test whether the covered and 'tag' genes are present in the Crijns dataset
-    prediction.Crijns <- predictExpression(tags, thisGene, Crijns, model, Crijns.measured)
     
     #We need to test whether the covered and 'tag' genes are present in the TCGA RNAseq dataset
     prediction.TCGA.RNA <- predictExpression(tags, thisGene, TCGA.RNA, model, TCGA.RNA.measured)
@@ -431,7 +409,7 @@ for(k in 1:length(args))
 #     #We need to test whether the covered and 'tag' genes are present in the Pils dataset
 #     prediction.Karlan <- predictExpression(tags, thisGene, Karlan, model, Karlan.measured)
     
-    result <- rbind(result, c(thisGene, length(tags), prediction.TCGA, prediction.Tothill, prediction.Yoshihara, prediction.Bonome, prediction.Crijns, prediction.Goode, prediction.TCGA.RNA))
+    result <- rbind(result, c(thisGene, length(tags), prediction.TCGA, prediction.Tothill, prediction.Yoshihara, prediction.Bonome, prediction.TCGA.RNA))
     progress <- paste((i / length(covered.genes) ) * 100, "%    \r")
     cat(progress)
   }
@@ -440,100 +418,14 @@ for(k in 1:length(args))
   rownames(result) <- result[,1]
   result <- result[,-1]
   colnames(result) <- c("nTagGenes", "TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman",
-                        "Bonome.Spearman","Crijns.Spearman", "Goode.Spearman", "TCGA.RNAseq.Spearman")
+                        "Bonome.Spearman","TCGA.RNAseq.Spearman")
   
-#   result.mod <- data.frame(CorrelationCoefficients=result$TCGA.Spearman, CorrType="Spearman", DataSet="TCGA")
-#   result.mod <- rbind(result.mod, data.frame(CorrelationCoefficients=result$Tothill.Spearman, CorrType="Spearman", DataSet="Tothill"))
-#   result.mod <- rbind(result.mod, data.frame(CorrelationCoefficients=result$Yoshihara.Spearman, CorrType="Spearman", DataSet="Yoshihara"))
-#   result.mod <- rbind(result.mod, data.frame(CorrelationCoefficients=result$Bonome.Spearman, CorrType="Spearman", DataSet="Bonome"))
-#   result.mod <- rbind(result.mod, data.frame(CorrelationCoefficients=result$Crijns.Spearman, CorrType="Spearman", DataSet="Crijns"))
-#   result.mod <- rbind(result.mod, data.frame(CorrelationCoefficients=result$Dressman.Spearman, CorrType="Spearman", DataSet="Dressman"))
-#   result.mod <- rbind(result.mod, data.frame(CorrelationCoefficients=result$Goode.Spearman, CorrType="Spearman", DataSet="Goode"))
 
-  
- 
-
-#   #Let's make sure that no dataset is empty
-#   tbl <- table(result.mod$DataSet, !is.na(result.mod$CorrelationCoefficients))
-#   tbl.empty <- rownames(tbl)[tbl[,2] == 0]
-#   tbl.full <- setdiff(rownames(tbl), tbl.empty)
-#   result.mod <- result.mod[result.mod$DataSet %in% tbl.full,]
-#   
-#   result.mod$CorrelationCoefficients <- as.numeric(paste(result.mod$CorrelationCoefficients))
-#   fname <- paste("Imputation/Figures/",args[k],".Quantile.imputation.correlation.accuracy.png", sep="")
-#   
-#   ggplot(result.mod, aes(CorrType, CorrelationCoefficients)) + geom_boxplot() + facet_wrap(~DataSet)
-#   ggsave(fname, width=11, height=8)
   
   
   #Save the results dataframe 
   fname <- paste("Imputation/Data/",args[k],".Quantile.imputation.results.txt", sep="")
   write.table(result, fname, quote=FALSE)
-
-  if(FALSE)
-  {
-    if(tbl["TCGA",2] > 0)
-    {
-      png(paste("Imputation/Figures/",args[k],".MAD.imputation.correlation.accuracy.TCGA.testing.MAD.png", sep=""), width=1000, height=700)
-      plot(result.var$MAD.TCGA, as.numeric(paste(result.var$TCGA.Spearman)), xlab="MAD", ylab="Imputation Spearman Rho", main="In TCGA Testing Partition\nAccuracy of Imputation by MAD")
-      abline(v=0.3, lty=2, col="red")
-      abline(v=0.5, lty=2, col="red")
-      dev.off()
-      
-      png(paste("Imputation/Figures/",args[k],".MAD.imputation.correlation.accuracy.TCGA.testing.normally.expressed.MAD.png", sep=""), width=1000, height=700)
-      plot(result.var$MAD.TCGA, as.numeric(paste(result.var$TCGA.Spearman)), col=(result.var$noExpress.TCGA>5)+1, xlab="MAD", ylab="Imputation Spearman Rho", main="In TCGA Testing Partition\nColored normally expressed")
-      abline(v=0.3, lty=2, col="red")
-      abline(v=0.5, lty=2, col="red")
-      dev.off()
-      
-      png(paste("Imputation/Figures/",args[k],".MAD.imputation.correlation.accuracy.TCGA.testing.Expression.Level.png", sep=""), width=1000, height=700)
-      plot(result.var$noExpress, as.numeric(paste(result.var$TCGA.Spearman)), col=(result.var$noExpress.TCGA>5)+1, xlab="99th Quantile Threshold", ylab="Imputation Spearman Rho", main="In TCGA Testing Partition\nColored normally expressed")
-      dev.off()
-      #plot(result.var$noExpress.TCGA, as.numeric(paste(result.var$TCGA.Spearman)), xlab="MAD", ylab="Imputation Spearman Rho", main="In TCGA Testing Partition\nAccuracy of Imputation by MAD")
-      
-    }
-    
-    if(tbl["Tothill",2] > 0)
-    {
-      png(paste("Imputation/Figures/",args[k],".MAD.imputation.correlation.accuracy.Tothill.MAD.png", sep=""), width=1000, height=700)
-      plot(result.var$MAD.Tothill, as.numeric(paste(result.var$Tothill.Spearman)), xlab="MAD", ylab="Imputation Spearman Rho", main="In Tothill Data\nAccuracy of Imputation by MAD")
-      dev.off()
-    }
-    
-    if(tbl["Yoshihara",2] > 0)
-    {
-      png(paste("Imputation/Figures/",args[k],".MAD.imputation.correlation.accuracy.Yoshihara.MAD.png", sep=""), width=1000, height=700)
-      plot(result.var$MAD.Yoshihara, as.numeric(paste(result.var$Yoshihara.Spearman)), xlab="MAD", ylab="Imputation Spearman Rho", main="In Yoshihara Data\nAccuracy of Imputation by MAD")
-      dev.off()
-    }
-    
-    if(tbl["Bonome",2] > 0)
-    {
-      png(paste("Imputation/Figures/",args[k],".MAD.imputation.correlation.accuracy.Bonome.MAD.png", sep=""), width=1000, height=700)
-      plot(result.var$MAD.Bonome, as.numeric(paste(result.var$Bonome.Spearman)), xlab="MAD", ylab="Imputation Spearman Rho", main="In Bonome Data\nAccuracy of Imputation by MAD")
-      dev.off()
-    }
-    
-    if(tbl["Bentink",2] > 0)
-    {
-      png(paste("Imputation/Figures/",args[k],".MAD.imputation.correlation.accuracy.Bentink.MAD.png", sep=""), width=1000, height=700)
-      plot(result.var$MAD.Bentink, as.numeric(paste(result.var$Bentink.Spearman)), xlab="MAD", ylab="Imputation Spearman Rho", main="In Bentink Data\nAccuracy of Imputation by MAD")
-      dev.off()
-      
-      png(paste("Imputation/Figures/",args[k],".MAD.imputation.correlation.accuracy.Bentink.ReTransform.MAD.png", sep=""), width=1000, height=700)
-      plot(result.var$MAD.Bentink, as.numeric(paste(result.var$Bentink.ReTransform.Spearman)), xlab="MAD", ylab="Imputation Spearman Rho", main="In Bentink Data\nAccuracy of Imputation by MAD")
-      dev.off()
-      
-    }
-    
-    if(tbl["Goode",2] > 0)
-    {
-      png(paste("Imputation/Figures/",args[k],".MAD.imputation.correlation.accuracy.Goode.MAD.png", sep=""), width=1000, height=700)
-      plot(result.var$MAD.Goode, as.numeric(paste(result.var$Goode.Spearman)), xlab="MAD", ylab="Imputation Spearman Rho", main="In Goode Data\nAccuracy of Imputation by MAD")
-      dev.off()
-    }
-    
-  }
  
 }
 

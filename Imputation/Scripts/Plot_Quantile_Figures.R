@@ -59,7 +59,7 @@ getImputationData <- function(fDir, fPatt, RNAseq=FALSE)
   results.combined <- do.call(rbind, results)
   if(! RNAseq)
   {
-    results.simple <- melt(results.combined[,c("TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Bonome.Spearman", "Crijns.Spearman","Goode.Spearman", "Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates")], id=c("Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates"))  
+    results.simple <- melt(results.combined[,c("TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Bonome.Spearman", "Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates")], id=c("Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates"))  
   }
   else
   {
@@ -82,19 +82,17 @@ datasets <- unlist(lapply(levels(dat$variable), function(x){
 }))
 datasets.RNA <- gsub("\\.Spearman", "", levels(dat.RNA$variable))
 
-#replace Goode with Konecny
-datasets[6] <- "Konecny"
-
 dat$Plottable.Datasetname <- factor(dat$variable, labels=datasets)
 dat.RNA$Plottable.Datasetname <- factor(dat.RNA$variable, labels=datasets.RNA)
 
 dat$Plottable.Threshold <- paste("|rP| = ", dat$CorrelationThreshold, sep="")
 dat.RNA$Plottable.Threshold <- paste("|rP| = ", dat.RNA$CorrelationThreshold, sep="")
+
 #````````````````````````````````````
 #Plot the no candidates results
 #````````````````````````````````````
-#fig <- ggplot(dat[ dat$Candidates == "None" & dat$variable != "Crijns.Spearman",], aes(factor(NumberMeasuredGenes, levels=c("10","15","20","25","30","35","40","45","50","100","150","200","250","300","350","400")), value, color=Redundancy, shape=Redundancy)) +
-fig <- ggplot(dat[ dat$Candidates == "None" & dat$variable != "Crijns.Spearman",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +
+
+fig <- ggplot(dat[ dat$Candidates == "None",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +
   theme_bw() +
   stat_summary(fun.data="mean_cl_boot", geom="pointrange", size=4, width=0.4) +
   facet_grid(Plottable.Datasetname ~ Plottable.Threshold) +  
@@ -118,8 +116,8 @@ ggsave("~/Documents/tmp2/evolutionary-gene-set-selection/Imputation/Figures/Quan
 #````````````````````````````````````
 #Plot the TCGA candidates results
 #````````````````````````````````````
-#fig <- ggplot(dat[ dat$Candidates == "TCGA" & dat$variable != "Crijns.Spearman",], aes(factor(NumberMeasuredGenes, levels=c("10","15","20","25","30","35","40","45","50","100","150","200","250","300","350","400")), value, color=Redundancy, shape=Redundancy)) +
-fig <- ggplot(dat[ dat$Candidates == "TCGA" & dat$variable != "Crijns.Spearman",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +
+
+fig <- ggplot(dat[ dat$Candidates == "TCGA",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +
   theme_bw() + 
   stat_summary(fun.data="mean_cl_boot", geom="pointrange", size=3, width=0.4) +
   facet_grid(Plottable.Datasetname ~ Plottable.Threshold) +  
@@ -144,8 +142,8 @@ ggsave("~/Documents/tmp2/evolutionary-gene-set-selection/Imputation/Figures/Quan
 #````````````````````````````````````
 #Plot the Yoshihara candidates results
 #````````````````````````````````````
-#fig <- ggplot(dat[ dat$Candidates == "Yoshihara" & dat$variable != "Crijns.Spearman",], aes(factor(NumberMeasuredGenes, levels=c("10","15","20","25","30","35","40","45","50","100","150","200","250","300","350","400")), value, color=Redundancy, shape=Redundancy)) +
-fig <- ggplot(dat[ dat$Candidates == "Yoshihara" & dat$variable != "Crijns.Spearman",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +  
+
+fig <- ggplot(dat[ dat$Candidates == "Yoshihara",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +  
   theme_bw() +
   stat_summary(fun.data="mean_cl_boot", geom="pointrange", size=3, width=0.4) +
   facet_grid(Plottable.Datasetname ~ Plottable.Threshold) +  

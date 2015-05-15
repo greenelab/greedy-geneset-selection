@@ -1,13 +1,10 @@
-
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #LIBRARIES
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# library(reshape)
 library(boot)
-#library(dataframes2xls)
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,8 +17,6 @@ QuantileGenesCoverageDir <- "Data/Quantile.GGS.Parameter.Sweep.Results/"
 
 candidateSuffix <- ".Candidate.Genes/"
 candidates <- c("Yoshihara", "TCGA")
-# YoshiharaCandidateDir <- "Yoshihara.Candidate.Genes/"
-# TCGACandidateDir <- "TCGA.Candidate.Genes/"
 imputationDir <- "Imputation/Data/"
 
 
@@ -74,7 +69,6 @@ subsetImputation <- function(dataOrig, directlyMeasured, correlThresh, candidate
         tmpDat.se <- sd(tmpDat.bt$t)
         res[name] <- paste(round(tmpDat.avg,3)," (", round(tmpDat.se,3), ")",sep="")
         missing.name <- gsub("Spearman", "proportion\\.predicted", name)
-        #missing.name <- paste(unlist(strsplit(name, "\\."))[1], ".proportion.predicted",sep="")
         res[missing.name] <- sum(!is.na(tmpDat)) / length(tmpDat)
       }
       
@@ -106,10 +100,6 @@ getSummary <- function(covData, impData)
       #when using candidate gene sets alone, the size of DM may differ and will be captured by the nMeasured variable
       dirMeas <- thisDat$FakeNMeasured[j]
       trueDirMeas <- thisDat$nMeasured[j]
-#       if(dirMeas > 100)
-#       {
-#         dirMeas <- mround(dirMeas, 50)
-#       }
       fold <- thisDat$Fold[j]
       rawScore <- thisDat$Score[j]
       covered <- thisDat$nCovered[j]
@@ -237,7 +227,6 @@ for(i in 1:length(files))
   tmp$Filtering <- filtering
   tmp$Candidates <- thisCand
   tmp$CorThresh <- corThresh
-  #   coverageResults[[corThresh]] <- read.table(files[i], sep="\t", header=T)
   coverageResults[[i]] <- tmp
   
 }
@@ -323,8 +312,6 @@ imputationResults <- lapply(files, function(x) {
 })
 
 imputationResults.combined <- do.call(rbind, imputationResults)
-# imputationResults.simple <- melt(results.combined[,c("TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Bonome.Spearman", "Bentink.Spearman", "Bentink.ReTransform.Spearman", "Goode.Spearman", "Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "TrueNumberMeasuredGenes", "Candidates")], id=c("Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "TrueNumberMeasuredGenes", "Candidates"))
-
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -333,8 +320,6 @@ imputationResults.combined <- do.call(rbind, imputationResults)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 summaryTable <- getSummary(coverageResults, imputationResults.combined)
-# summaryTable <- summaryTable[order(summaryTable[,1],summaryTable[,2],summaryTable[,3],summaryTable[,4],as.numeric(paste(summaryTable[,5]))),]
-# summaryTable <- data.frame(summaryTable)
 
 write.table(summaryTable, "Data/SummaryTable.Quantile.tsv",sep="\t",row.names=F,quote=F)
 
