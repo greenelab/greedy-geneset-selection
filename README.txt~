@@ -55,5 +55,6 @@ Used R libraries:
   ff 2.2
   curatedOvarianData 1.3.4
   igraph 0.7.1
+  doppelgangR (https://github.com/lwaldron/doppelgangR)
 
 

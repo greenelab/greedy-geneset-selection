@@ -238,7 +238,7 @@ write.table(genes.split, "genelist.quantile.filtered.0.6.1.txt", quote=F, col.na
 
 
 #Read in the GO-slimo pathways 
-pathways <- read.csv2("test.csv", header=F, sep=";")
+pathways <- read.csv2("Data/OBO.genelist.csv", header=F, sep=";")
 
 #Background genes
 enrichment.df <- data.frame(GO_ID=pathways[,1], Pathway=pathways[,2])

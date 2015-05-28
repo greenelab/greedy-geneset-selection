@@ -30,6 +30,7 @@ GGS has been tested using Python 2.7 on Ubuntu 14.04
 Used python libraries:
   docopt
   numpy
+  requests
   itertools
   collections
   copy
