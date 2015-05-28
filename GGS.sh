@@ -139,6 +139,7 @@ echo $IMPUTATIONLIST
 echo "====================================\n====================================\n"
 echo "Quantile Filtered Imputation..."
 Rscript Imputation/Scripts/Imputation_Quantile_args.R $IMPUTATIONLIST 2>> R.error.log
+#Rscript Imputation/Scripts/Imputation_Quantile_Konecny_only_args.R $IMPUTATIONLIST 2>> R.error.log
 
 #R script to perform the imputation experiment using candidate genelists
 echo "Performing Imputation Experiment with Candidate Gene Lists..."
@@ -146,8 +147,8 @@ echo "====================================\n====================================
 echo $CANDIDATEIMPUTATIONLIST
 echo "====================================\n====================================\n"
 echo "Quantile Filtered Candidate Imputation"
-Rscript Imputation/Scripts/Imputation_Quantile_args.R $CANDIDATEIMPUTATIONLIST
-
+Rscript Imputation/Scripts/Imputation_Quantile_args.R $CANDIDATEIMPUTATIONLIST 2>> R.error.log
+#Rscript Imputation/Scripts/Imputation_Quantile_Konecny_only_args.R $CANDIDATEIMPUTATIONLIST 2>> R.error.log
 
 #R script to plot the results of the imputation experiment
 echo "Plotting results of imputation experiment..."
@@ -155,10 +156,10 @@ Rscript Imputation/Scripts/Plot_Quantile_Figures.R 2>> R.error.log
 
 #R script to create the result table containing number of predictable genes and average prediction accuracy in TCGA and validation datasets
 echo "Summarizing Results..."
-Rscript Scripts/Summary_Tables_Quantile.R
+#Rscript Scripts/Summary_Tables_Quantile.R
 
 #Create network diagram
 echo "Creating the GML graph of genes to be used in Cytoskape..."
-Rscript Scripts/GeneGraph.R
+#Rscript Scripts/GeneGraph.R
 
 

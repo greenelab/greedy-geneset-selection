@@ -1,6 +1,13 @@
+import csv
+import requests
 
+# Define where Tribe is located.
+TRIBE_URL = "http://tribe.greenelab.com"
 
+#File which holds the OBO format of the Go-slim human pathway list
+fname = "Data/goslim_generic.obo.txt"
 
+#This class will be used to hold the key pathway info as the OBO file is parsed. 
 class OBO:
 	GO_namespace = None
 	GO_name = None
@@ -11,10 +18,13 @@ class OBO:
 		self.GO_ID = id
 
 
-fname = "Data/goslim_generic.obo.txt"
 
+#Number of processes in the OBO file
 numberProcesses = 0
+
+#Number of processes belonging to Biological Processes
 BP_counter = 0
+
 BP_classes = []
 
 #open an OBO file and iterate through it line by line
@@ -56,6 +66,34 @@ print("There are a total number of " + str(numberProcesses) + " terms in the gen
 print(str(BP_counter) + " terms belong to Biological processes (" + str(100 * float(BP_counter) / numberProcesses) + "%)")
 
 print("The following are the BP specific GO IDs which are in the generic GO Slim")
-for c in BP_classes:
-	print(str(c.GO_ID) + " \t " + str(c.GO_name))
-	#print(str(c.GO_name))
+with open('test.csv', 'w') as fp:
+	#a = csv.writer(fp, delimiter=';', lineterminator="\n")
+	for c in BP_classes:
+		print(str(c.GO_ID) + " \t " + str(c.GO_name))
+		#print(str(c.GO_name))
+		#build the tribe request
+		parameters = {'query': 'GO-BP-' + c.GO_ID[3:],
+				  'show_tip': 'true',
+				  'organism__scientific_name': 'Homo sapiens',
+				  'xrdb': 'Symbol'}
+		r = requests.get(TRIBE_URL + '/api/v1/geneset/', params=parameters)
+		result = r.json()
+		if len(result['objects']) > 0:
+			tmp = result['objects'][0]
+			tip = tmp['tip']
+			genes = tip['genes']
+			#a.write(c.GO_ID + ", " + c.GO_name)
+			#genes.insert(0, str(c.GO_name))
+			#genes.insert(0, str(c.GO_ID))
+			#print(tip['genes'])
+			#print(len(tip['genes']))
+			fp.write(c.GO_ID + ";" + c.GO_name + ";")
+			thisString = str(genes[0])
+			if len(genes) > 1:
+				for x in genes[1:]:
+					thisString = thisString + ", " + str(x)
+			thisString = thisString + "\n"
+			fp.write(thisString)
+			#genesTmp = [x.encode('ascii', 'ignore') for x in genes]
+			#a.writerow(genesTmp)
+	

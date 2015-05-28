@@ -190,6 +190,7 @@ TCGA <- TCGA[,sample(ncol(TCGA))]
 sampleTrainingUpperBound <- round(ncol(TCGA) * (1/3) * 2)
 sampleTestingLowerBound <- sampleTrainingUpperBound + 1
 sampleTestingUpperBound <- ncol(TCGA)
+testingSamples <- colnames(TCGA)[sampleTestingLowerBound:sampleTestingUpperBound]
 
 #Let's test in Tothill Data
 data(GSE9891_eset) 
@@ -250,6 +251,10 @@ data(TCGA.RNASeqV2_eset)
 TCGA.RNA <- exprs(TCGA.RNASeqV2_eset)
 tcga.rna.samples <- intersect(tcga.samples$x, colnames(TCGA.RNA))
 TCGA.RNA <- TCGA.RNA[,as.character(tcga.rna.samples)]
+TCGA.RNA.ln <- log(1+TCGA.RNA, base=2)
+rnaseq.testingSamples <- intersect(testingSamples, colnames(TCGA.RNA.ln))
+cat(paste("Number of RNAseq testing samples: ", length(rnaseq.testingSamples)))
+
 # common.genes <- intersect(rownames(TCGA), rownames(TCGA.RNA))
 # common.genes.cor <- lapply(common.genes, function(x){
 #   return(cor(TCGA[x,colnames(TCGA.RNA)], TCGA.RNA[x,]))
@@ -270,7 +275,12 @@ rm(TCGA.RNASeqV2_eset)
 gc()
 
 
-
+#Let's get the Goode data (384 samples measured on an Agilent wholegenome_4x44k_v1 platform
+Goode <- read.table("../tmp2/evolutionary-gene-set-selection/Data/jen.comb.mtx2_exprs_Normalizer.txt", sep="\t")
+Goode <- Goode[,-1]
+mayo.samples <- read.csv("Data/SampleFilter/mayo.eset_samplesRemoved_noDoppel.csv")
+Goode <- Goode[,as.character(mayo.samples$x)]
+cat("Loaded Goode Data \n")
 
 
 print("Generating Correlation Matrix...")
@@ -335,7 +345,11 @@ for(k in 1:length(args))
   Tothill.measured <- normalize.JR(Tothill[measured.genes,])
   Yoshihara.measured <- normalize.JR(Yoshihara[intersect(measured.genes, rownames(Yoshihara)),])
   Bonome.measured <- normalize.JR(Bonome[measured.genes,])
+  Goode.measured <- normalize.JR(Goode[intersect(measured.genes, rownames(Goode)),])
   TCGA.RNA.measured <- normalize.JR(TCGA.RNA[intersect(measured.genes, rownames(TCGA.RNA)),])
+  TCGA.RNA.measured.testingSubset <- normalize.JR(TCGA.RNA[intersect(measured.genes, rownames(TCGA.RNA)),intersect(testingSamples, colnames(TCGA.RNA))])
+  TCGA.RNA.ln.measured <- normalize.JR(TCGA.RNA.ln[intersect(measured.genes, rownames(TCGA.RNA)),])
+  TCGA.RNA.ln.measured.testingSubset <- normalize.JR(TCGA.RNA.ln[intersect(measured.genes, rownames(TCGA.RNA)),intersect(testingSamples, colnames(TCGA.RNA.ln))])
 
   
   #The empty object which will eventually hold our result data frame
@@ -397,19 +411,19 @@ for(k in 1:length(args))
     #We need to test whether the covered and 'tag' genes are present in the Yoshihara dataset
     prediction.Yoshihara <- predictExpression(tags, thisGene, Yoshihara, model, Yoshihara.measured)
     
+    #We need to test whether the covered and 'tag' genes are present in the Goode dataset
+    prediction.Goode <- predictExpression(tags, thisGene, Goode, model, Goode.measured)
+    
     #We need to test whether the covered and 'tag' genes are present in the TCGA RNAseq dataset
     prediction.TCGA.RNA <- predictExpression(tags, thisGene, TCGA.RNA, model, TCGA.RNA.measured)
+    prediction.TCGA.RNA.testingSubset <- predictExpression(tags, thisGene, TCGA.RNA[,intersect(testingSamples, colnames(TCGA.RNA))], model, TCGA.RNA.measured.testingSubset)
     
-#     #We need to test whether the covered and 'tag' genes are present in the Dressman dataset
-#     prediction.Dressman <- predictExpression(tags, thisGene, Dressman, model, Dressman.measured)
-#     
-#     #We need to test whether the covered and 'tag' genes are present in the Pils dataset
-#     prediction.Pils <- predictExpression(tags, thisGene, Pils, model, Pils.measured)
-#     
-#     #We need to test whether the covered and 'tag' genes are present in the Pils dataset
-#     prediction.Karlan <- predictExpression(tags, thisGene, Karlan, model, Karlan.measured)
+    prediction.TCGA.RNA.ln <- predictExpression(tags, thisGene, TCGA.RNA.ln, model, TCGA.RNA.ln.measured)    
+    prediction.TCGA.RNA.ln.testingSubset <- predictExpression(tags, thisGene, TCGA.RNA.ln[,intersect(testingSamples, colnames(TCGA.RNA.ln))], model, TCGA.RNA.ln.measured.testingSubset)
     
-    result <- rbind(result, c(thisGene, length(tags), prediction.TCGA, prediction.Tothill, prediction.Yoshihara, prediction.Bonome, prediction.TCGA.RNA))
+    
+    result <- rbind(result, c(thisGene, length(tags), prediction.TCGA, prediction.Tothill, prediction.Yoshihara, prediction.Bonome, prediction.Goode, 
+                              prediction.TCGA.RNA, prediction.TCGA.RNA.testingSubset, prediction.TCGA.RNA.ln, prediction.TCGA.RNA.ln.testingSubset))
     progress <- paste((i / length(covered.genes) ) * 100, "%    \r")
     cat(progress)
   }
@@ -418,7 +432,8 @@ for(k in 1:length(args))
   rownames(result) <- result[,1]
   result <- result[,-1]
   colnames(result) <- c("nTagGenes", "TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman",
-                        "Bonome.Spearman","TCGA.RNAseq.Spearman")
+                        "Bonome.Spearman", "Goode.Spearman", "TCGA.RNAseq.Spearman", "TCGA.RNAseq.testing.Spearman",
+                        "TCGA.RNAseq.ln.Spearman", "TCGA.RNAseq.ln.testing.Spearman")
   
 
   
@@ -428,27 +443,4 @@ for(k in 1:length(args))
   write.table(result, fname, quote=FALSE)
  
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

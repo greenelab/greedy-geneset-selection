@@ -69,8 +69,8 @@ g <- graph.adjacency(TCGA.cor.bin)
 
 #Annotate each nodem (gene) to indicate whether it is measured, predicted, or NA
 V(g)$Set <- "NA"
-V(g)$Set[V(g)$name %in% as.character(unlist(c(measured[1,])))] <- "Measured"
 V(g)$Set[V(g)$name %in% as.character(unlist(c(predicted[1,])))] <- "Predicted"
+V(g)$Set[V(g)$name %in% as.character(unlist(c(measured[1,])))] <- "Measured"
 
 #Indicate the color of each node (gene)
 V(g)$color <- ifelse(V(g)$Set == "Measured", "Red", "Blue")

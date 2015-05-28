@@ -237,5 +237,43 @@ genes.split <- unlist(strsplit(genes, "///"))
 write.table(genes.split, "genelist.quantile.filtered.0.6.1.txt", quote=F, col.names=F, row.names=F, sep="\n")
 
 
+#Read in the GO-slimo pathways 
+pathways <- read.csv2("test.csv", header=F, sep=";")
 
+#Background genes
+enrichment.df <- data.frame(GO_ID=pathways[,1], Pathway=pathways[,2])
 
+enrichment.df$backgroundFreq <- NA
+enrichment.df$sampleFreq <- NA
+enrichment.df$direction <- NA
+enrichment.df$pvalue <- NA
+
+genes.background <- unlist(strsplit(colnames(TCGA.cor.bin), "///"))
+genes.eligible <- genes.split
+for(i in 1:nrow(pathways))
+{
+  genes.pathway <- gsub(" ", "", unlist(strsplit(as.character(pathways[i,3]), ",")))
+  eligible.overlap <- length(intersect(genes.eligible, genes.pathway))
+  background.overlap <- length(intersect(genes.background, genes.pathway))
+  nAllGenes <- length(genes.background)
+  nEligibleGenes <- length(genes.eligible)
+  
+  enrichment.df$backgroundFreq[i] <- background.overlap
+  enrichment.df$sampleFreq[i] <- eligible.overlap
+  
+  if(background.overlap > eligible.overlap)
+  {
+    enrichment.df$direction[i] <- "-"
+  }
+  else if(background.overlap <= eligible.overlap)
+  {
+    enrichment.df$direction[i] <- "+"
+  }
+  p <- phyper(eligible.overlap, nEligibleGenes, nAllGenes - nEligibleGenes, length(genes.pathway))
+  enrichment.df$pvalue[i] <- as.character(p)
+}
+
+enrichment.df$pAdjusted <- p.adjust(enrichment.df$pvalue, method="bonferroni")
+enrichment.df <- enrichment.df[order(enrichment.df$pAdjusted, decreasing=F),]
+
+write.table(enrichment.df, "Data/TCGA.1.0.6.eligible.GoSlim.enrichment.table.csv", quote=F, sep=",", row.names=F)

@@ -110,7 +110,7 @@ fig.tmp <- fig + theme(panel.grid.major = element_line(colour = "grey", size = 2
                        strip.background = element_rect(color="black", fill="black", size=1, linetype="solid"),
                        strip.text.x = element_text(color="white", face="bold", size=65),
                        strip.text.y = element_text(color="white", face="bold", size=65))
-ggsave("~/Documents/tmp2/evolutionary-gene-set-selection/Imputation/Figures/Quantile.No.Candidates.imputation.results.png", fig.tmp, height=31, width=51, limitsize=FALSE)
+ggsave("Imputation/Figures/Quantile.No.Candidates.imputation.results.png", fig.tmp, height=31, width=51, limitsize=FALSE)
 
 
 #````````````````````````````````````
@@ -134,7 +134,7 @@ fig <- ggplot(dat[ dat$Candidates == "TCGA",], aes(as.numeric(NumberMeasuredGene
         strip.background = element_rect(color="black", fill="black", size=0.1, linetype="solid"),
         strip.text.x = element_text(color="white", face="bold", size=65),
         strip.text.y = element_text(color="white", face="bold", size=65, vjust=1))
-ggsave("~/Documents/tmp2/evolutionary-gene-set-selection/Imputation/Figures/Quantile.TCGA.Candidates.imputation.results.png", fig, height=31, width=51, limitsize=FALSE)
+ggsave("Imputation/Figures/Quantile.TCGA.Candidates.imputation.results.png", fig, height=31, width=51, limitsize=FALSE)
 
 
 
@@ -160,7 +160,7 @@ fig <- ggplot(dat[ dat$Candidates == "Yoshihara",], aes(as.numeric(NumberMeasure
         strip.background = element_rect(color="black", fill="black", size=0.1, linetype="solid"),
         strip.text.x = element_text(color="white", face="bold", size=65),
         strip.text.y = element_text(color="white", face="bold", size=65, vjust=1))
-ggsave("~/Documents/tmp2/evolutionary-gene-set-selection/Imputation/Figures/Quantile.Yoshihara.Candidates.imputation.results.png", fig, height=31, width=51, limitsize=FALSE)
+ggsave("Imputation/Figures/Quantile.Yoshihara.Candidates.imputation.results.png", fig, height=31, width=51, limitsize=FALSE)
 
 
 
@@ -185,6 +185,6 @@ fig <- ggplot(dat.RNA[dat.RNA$Candidates == "None",], aes(as.numeric(NumberMeasu
         strip.background = element_rect(color="black", fill="black", size=0.1, linetype="solid"),
         strip.text.x = element_text(color="white", face="bold", size=65),
         strip.text.y = element_text(color="white", face="bold", size=65, vjust=1))
-ggsave("~/Documents/tmp2/evolutionary-gene-set-selection/Imputation/Figures/Quantile.RNAseq.imputation.results.png", fig, height=31, width=51, limitsize=FALSE)
+ggsave("Imputation/Figures/Quantile.RNAseq.imputation.results.png", fig, height=31, width=51, limitsize=FALSE)
 
 
