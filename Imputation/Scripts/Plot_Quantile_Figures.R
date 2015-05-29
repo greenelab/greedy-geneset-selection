@@ -59,7 +59,7 @@ getImputationData <- function(fDir, fPatt, RNAseq=FALSE)
   results.combined <- do.call(rbind, results)
   if(! RNAseq)
   {
-    results.simple <- melt(results.combined[,c("TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Bonome.Spearman", "Goode.Spearman","Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates")], id=c("Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates"))  
+    results.simple <- melt(results.combined[,c("TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Bonome.Spearman", "Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates")], id=c("Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates"))  
   }
   else
   {
@@ -80,11 +80,10 @@ datasets <- unlist(lapply(levels(dat$variable), function(x){
   tmp <- strsplit(x, "\\.")
   return(unlist(tmp[[1]])[1])
 }))
-datasets[5] <- "Konecny"
 datasets.RNA <- gsub("\\.Spearman", "", levels(dat.RNA$variable))
 
 dat$Plottable.Datasetname <- factor(dat$variable, labels=datasets)
-dat$Plottable.DatasetnameII <- factor(dat$Plottable.Datasetname, levels=c("TCGA", "Konecny", "Yoshihara", "Tothill", "Bonome"))
+dat$Plottable.DatasetnameII <- factor(dat$Plottable.Datasetname, levels=c("TCGA", "Yoshihara", "Tothill", "Bonome"))
 dat.RNA$Plottable.Datasetname <- factor(dat.RNA$variable, labels=datasets.RNA)
 dat.RNA$Plottable.DatasetnameII <- factor(dat.RNA$Plottable.Datasetname, labels=c("paste('TCGA RNAseq All Samples')", "paste('TCGA RNAseq Testing Partition')"))
 

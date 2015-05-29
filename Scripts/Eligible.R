@@ -169,21 +169,21 @@ for(i in 1:3)
 }
 
 p1 <- ggplot(plots[[1]], aes(x=thresh, y=eg)) + geom_bar(stat="identity", col="black", fill=colors) + theme_bw() +
-  xlab("|rP|") +
+  xlab(bquote(abs(r[p]))) +
   ylab("Number of Eligible Genes") +
   scale_y_continuous(limits=c(0,6100), oob=rescale_none, breaks=seq(0,6000,1000)) +
   theme(text = element_text(size=20)) +
   labs(title="Min. correlated genes=1")
 
 p2 <- ggplot(plots[[2]], aes(x=thresh, y=eg)) + geom_bar(stat="identity", col="black", fill=colors) + theme_bw() +
-  xlab("|rP|") +
+  xlab(bquote(abs(r[p]))) +
   ylab("Number of Eligible Genes") +
   scale_y_continuous(limits=c(0,6100), oob=rescale_none, breaks=seq(0,6000,1000)) +
   theme(text = element_text(size=20)) +
   labs(title="Min. correlated genes=2")
 
 p3 <- ggplot(plots[[3]], aes(x=thresh, y=eg)) + geom_bar(stat="identity", col="black", fill=colors) + theme_bw() +
-  xlab("|rP|") +
+  xlab(bquote(abs(r[p]))) +
   ylab("Number of Eligible Genes") +
   scale_y_continuous(limits=c(0,6100), oob=rescale_none, breaks=seq(0,6000,1000)) +
   theme(text = element_text(size=20)) +
