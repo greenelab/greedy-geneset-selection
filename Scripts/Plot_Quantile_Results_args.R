@@ -285,10 +285,11 @@ results.tcga.combined$Redundancy <- factor(results.tcga.combined$Fold)
 results.candidates.combined <- rbind(results.tcga.combined, results.yoshihara.combined)
 results.candidates.combined$Candidates <- "Yoshihara"
 results.candidates.combined$Candidates[1:nrow(results.tcga.combined)] <- "TCGA"
+results.candidates.combined$CandidatesII <- factor(results.candidates.combined$Candidates, levels=c("Yoshihara", "TCGA"))
 
 fig <- ggplot(results.candidates.combined, aes(x=nMeasured, y=nCovered, group=Fold,color=Redundancy)) + theme_bw() +
   geom_line() + geom_point(aes(shape=Redundancy)) +
   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
-  facet_grid(Candidates ~ Threshold) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
-  theme(text = element_text(size=20))
+  facet_grid(CandidatesII ~ Threshold) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
+  xlim(100,400) + theme(text = element_text(size=20))
 ggsave("Figures/CoverageByNumGenesMeasured.Quantile.All.Candidate.Genes.png", fig, width=11, height=11)
