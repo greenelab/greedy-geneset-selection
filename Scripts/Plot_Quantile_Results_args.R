@@ -124,24 +124,26 @@ process_results <- function(fName, binLevel, plotName)
 	return(GGS.results)
 }
 
-threshold_labeler <- function(variable, value)
+threshold_labeler <- function(value)
 {
   if(value == "0.6")
   {
-    return("|rP| = 0.60")
+    return("|r[P]| = 0.60")
   }
   
-  if(value == "0.66")
+  if(value == "0.65")
   {
-    return("|rP| = 0.66")
+    return("|r[P]| = 0.65")
   }
   
   if(value == "0.7")
   {
-    return("|rP| = 0.70")
+    return("|r[P]| = 0.70")
   }
 
 }
+
+
 
 getEligibleGenes <- function(corBin, rP, redundancy)
 {
@@ -226,11 +228,12 @@ results.combined$eligible[results.combined$Threshold == "0.7" & results.combined
 
 results.combined$missed <- pmax(0, results.combined$eligible - (results.combined$nMeasured + results.combined$nCovered))
 results.combined$Redundancy <- factor(results.combined$Fold)
+results.combined$ThresholdII <- factor(results.combined$Threshold, labels=c(bquote(abs(r[P]) >= "0.60"), bquote(abs(r[P]) >= "0.65"), bquote(abs(r[P]) >= "0.70")))
 
 fig <- ggplot(results.combined, aes(x=nMeasured, y=nCovered, color=Redundancy)) + theme_bw() + 
   geom_line() + geom_point(aes(shape=Redundancy)) +
   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
-  facet_wrap(~ Threshold) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
+  facet_grid(~ ThresholdII, labeller=label_parsed) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
   theme(text = element_text(size=20), panel.margin=unit(1.5, "lines")) 
 
 ggsave("Figures/CoverageByNumGenesMeasured.Quantile.png", fig, width=11, height=6)
@@ -250,6 +253,7 @@ results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.7
 
 results.yoshihara.combined$missed <- pmax(0, results.yoshihara.combined$eligible - (results.yoshihara.combined$nMeasured + results.yoshihara.combined$nCovered))
 results.yoshihara.combined$Redundancy <- factor(results.yoshihara.combined$Fold)
+results.yoshihara.combined$ThresholdII <- factor(results.yoshihara.combined$Threshold, labels=c(bquote(abs(r[P]) >= "0.60"), bquote(abs(r[P]) >= "0.65"), bquote(abs(r[P]) >= "0.70")))
 # fig <- ggplot(results.yoshihara.combined, aes(x=nMeasured, y=nCovered, color=Redundancy)) + theme_bw() +
 #   geom_line() + geom_point(aes(shape=Redundancy)) +
 #   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
@@ -272,7 +276,7 @@ results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.7" & result
 
 results.tcga.combined$missed <- pmax(results.tcga.combined$eligible - (results.tcga.combined$nMeasured + results.tcga.combined$nCovered), 0)
 results.tcga.combined$Redundancy <- factor(results.tcga.combined$Fold)
-
+results.tcga.combined$ThresholdII <- factor(results.tcga.combined$Threshold, labels=c(bquote(abs(r[P]) >= "0.60"), bquote(abs(r[P]) >= "0.65"), bquote(abs(r[P]) >= "0.70")))
 # fig <- ggplot(results.tcga.combined, aes(x=nMeasured, y=nCovered, group=Fold,color=Redundancy)) + theme_bw() +
 #   geom_line() + geom_point(aes(shape=Redundancy)) +
 #   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
@@ -290,6 +294,6 @@ results.candidates.combined$CandidatesII <- factor(results.candidates.combined$C
 fig <- ggplot(results.candidates.combined, aes(x=nMeasured, y=nCovered, group=Fold,color=Redundancy)) + theme_bw() +
   geom_line() + geom_point(aes(shape=Redundancy)) +
   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
-  facet_grid(CandidatesII ~ Threshold) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
+  facet_grid(CandidatesII ~ ThresholdII, labeller=label_parsed) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
   xlim(100,400) + theme(text = element_text(size=20))
 ggsave("Figures/CoverageByNumGenesMeasured.Quantile.All.Candidate.Genes.png", fig, width=17.5, height=11)
