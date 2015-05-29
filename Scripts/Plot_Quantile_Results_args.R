@@ -292,4 +292,4 @@ fig <- ggplot(results.candidates.combined, aes(x=nMeasured, y=nCovered, group=Fo
   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
   facet_grid(CandidatesII ~ Threshold) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
   xlim(100,400) + theme(text = element_text(size=20))
-ggsave("Figures/CoverageByNumGenesMeasured.Quantile.All.Candidate.Genes.png", fig, width=11, height=11)
+ggsave("Figures/CoverageByNumGenesMeasured.Quantile.All.Candidate.Genes.png", fig, width=17.5, height=11)
