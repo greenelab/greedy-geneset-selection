@@ -234,7 +234,9 @@ fig <- ggplot(results.combined, aes(x=nMeasured, y=nCovered, color=Redundancy)) 
   geom_line() + geom_point(aes(shape=Redundancy)) +
   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
   facet_grid(~ ThresholdII, labeller=label_parsed) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
-  theme(text = element_text(size=20), panel.margin=unit(1.5, "lines")) 
+  theme(text = element_text(size=20), panel.margin=unit(1.5, "lines"),
+        strip.background = element_rect(color="black", fill="black", size=0.1, linetype="solid"),
+        strip.text.x = element_text(color="white", face="bold")) 
 
 ggsave("Figures/CoverageByNumGenesMeasured.Quantile.png", fig, width=11, height=6)
 
@@ -295,5 +297,9 @@ fig <- ggplot(results.candidates.combined, aes(x=nMeasured, y=nCovered, group=Fo
   geom_line() + geom_point(aes(shape=Redundancy)) +
   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
   facet_grid(CandidatesII ~ ThresholdII, labeller=label_parsed) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
-  xlim(100,400) + theme(text = element_text(size=20))
+  xlim(100,400) + 
+  theme(strip.background = element_rect(color="black", fill="black", size=0.1, linetype="solid"),
+        strip.text.x = element_text(color="white", face="bold"),
+        strip.text.y = element_text(color="white", face="bold", size=30, vjust=1),
+        text = element_text(size=20))
 ggsave("Figures/CoverageByNumGenesMeasured.Quantile.All.Candidate.Genes.png", fig, width=17.5, height=11)
