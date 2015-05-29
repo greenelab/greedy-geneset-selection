@@ -275,12 +275,6 @@ rm(TCGA.RNASeqV2_eset)
 gc()
 
 
-#Let's get the Goode data (384 samples measured on an Agilent wholegenome_4x44k_v1 platform
-Goode <- read.table("../tmp2/evolutionary-gene-set-selection/Data/jen.comb.mtx2_exprs_Normalizer.txt", sep="\t")
-Goode <- Goode[,-1]
-mayo.samples <- read.csv("Data/SampleFilter/mayo.eset_samplesRemoved_noDoppel.csv")
-Goode <- Goode[,as.character(mayo.samples$x)]
-cat("Loaded Goode Data \n")
 
 
 print("Generating Correlation Matrix...")
@@ -345,7 +339,6 @@ for(k in 1:length(args))
   Tothill.measured <- normalize.JR(Tothill[measured.genes,])
   Yoshihara.measured <- normalize.JR(Yoshihara[intersect(measured.genes, rownames(Yoshihara)),])
   Bonome.measured <- normalize.JR(Bonome[measured.genes,])
-  Goode.measured <- normalize.JR(Goode[intersect(measured.genes, rownames(Goode)),])
   TCGA.RNA.measured <- normalize.JR(TCGA.RNA[intersect(measured.genes, rownames(TCGA.RNA)),])
   TCGA.RNA.measured.testingSubset <- normalize.JR(TCGA.RNA[intersect(measured.genes, rownames(TCGA.RNA)),intersect(testingSamples, colnames(TCGA.RNA))])
   TCGA.RNA.ln.measured <- normalize.JR(TCGA.RNA.ln[intersect(measured.genes, rownames(TCGA.RNA)),])
@@ -411,9 +404,6 @@ for(k in 1:length(args))
     #We need to test whether the covered and 'tag' genes are present in the Yoshihara dataset
     prediction.Yoshihara <- predictExpression(tags, thisGene, Yoshihara, model, Yoshihara.measured)
     
-    #We need to test whether the covered and 'tag' genes are present in the Goode dataset
-    prediction.Goode <- predictExpression(tags, thisGene, Goode, model, Goode.measured)
-    
     #We need to test whether the covered and 'tag' genes are present in the TCGA RNAseq dataset
     prediction.TCGA.RNA <- predictExpression(tags, thisGene, TCGA.RNA, model, TCGA.RNA.measured)
     prediction.TCGA.RNA.testingSubset <- predictExpression(tags, thisGene, TCGA.RNA[,intersect(testingSamples, colnames(TCGA.RNA))], model, TCGA.RNA.measured.testingSubset)
@@ -432,7 +422,7 @@ for(k in 1:length(args))
   rownames(result) <- result[,1]
   result <- result[,-1]
   colnames(result) <- c("nTagGenes", "TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman",
-                        "Bonome.Spearman", "Goode.Spearman", "TCGA.RNAseq.Spearman", "TCGA.RNAseq.testing.Spearman",
+                        "Bonome.Spearman", "TCGA.RNAseq.Spearman", "TCGA.RNAseq.testing.Spearman",
                         "TCGA.RNAseq.ln.Spearman", "TCGA.RNAseq.ln.testing.Spearman")
   
 
