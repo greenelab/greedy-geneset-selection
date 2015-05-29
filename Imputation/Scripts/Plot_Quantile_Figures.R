@@ -73,8 +73,8 @@ getImputationData <- function(fDir, fPatt, RNAseq=FALSE)
 #LOAD THE DATA
 #````````````````````````````````````
 #Get the  imputation results
-dat <- getImputationData("/Imputation/Data", "*.Quantile.imputation.results.txt$")
-dat.RNA <- getImputationData("/Imputation/Data", "*.Quantile.imputation.results.txt$", TRUE)
+dat <- getImputationData("Imputation/Data", "*.Quantile.imputation.results.txt$")
+dat.RNA <- getImputationData("Imputation/Data", "*.Quantile.imputation.results.txt$", TRUE)
 
 datasets <- unlist(lapply(levels(dat$variable), function(x){
   tmp <- strsplit(x, "\\.")
