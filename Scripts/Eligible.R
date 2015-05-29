@@ -4,15 +4,14 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#load required libraries
+
 library(ff)
 library(doMC)
-#library(multicore)
-#library(fastcluster)
 library(curatedOvarianData)
 library(wq)
 library(ggplot2)
 library(scales)
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #FUNCTIONS
@@ -153,19 +152,6 @@ TCGA.quantile <- apply(TCGA,1,function(x){
 })
 
 
-# hist(TCGA.quantile, breaks=50, main="Distribution of Expression 90th Quantile Thresholds",
-#      xlab="90th Quantile Threshold",
-#      ylab="Number of Genes") 
-# abline(v=5, col="red", lty="dashed", lwd=2)
-
-# plot.quantile <- ggplot(data.frame(TCGA.quantile), aes(x=TCGA.quantile)) + geom_histogram(binwidth=.36, fill=NA, colour="black") + 
-#   scale_x_continuous(limits=c(0,round(max(TCGA.quantile)) + 1), breaks=seq(0,round(max(TCGA.quantile)) + 1,2)) +
-#   scale_y_continuous(limits=c(0,1500),breaks=seq(0,1500,250)) +
-#   geom_vline(aes(xintercept=5), color="red", linetype="dashed", size=2) +
-#   xlab("90th Quantile Threshold") +
-#   ylab("Number of Genes") +
-#   theme(text = element_text(size=20))
-
 TCGA <- TCGA[TCGA.quantile > 5,]
 TCGA.cor <- getCorrelationMatrix(t(TCGA))
 
@@ -178,8 +164,6 @@ for(i in 1:3)
 {
   
   eg <- getEligibleGenes(TCGA.cor, thresh, i)
-#   p1 <- barplot(eg, names.arg=thresh, col=colors, main="Number of Eligible Genes by |rP| threshold",
-#                 xlab="|rP|", ylab="Number of Eligible Genes", cex.lab=1.5, cex.main=2)
   plots[[i]] <- data.frame(thresh, eg)
   print(paste("Finished ", i, sep=" "))
 }
@@ -245,7 +229,7 @@ enrichment.df <- data.frame(GO_ID=pathways[,1], Pathway=pathways[,2])
 
 enrichment.df$backgroundFreq <- NA
 enrichment.df$sampleFreq <- NA
-enrichment.df$direction <- NA
+enrichment.df$Expected <- NA
 enrichment.df$pvalue <- NA
 
 genes.background <- unlist(strsplit(colnames(TCGA.cor.bin), "///"))
@@ -261,16 +245,12 @@ for(i in 1:nrow(pathways))
   enrichment.df$backgroundFreq[i] <- background.overlap
   enrichment.df$sampleFreq[i] <- eligible.overlap
   
-  if(background.overlap > eligible.overlap)
-  {
-    enrichment.df$direction[i] <- "-"
-  }
-  else if(background.overlap <= eligible.overlap)
-  {
-    enrichment.df$direction[i] <- "+"
-  }
-  p <- phyper(eligible.overlap, nEligibleGenes, nAllGenes - nEligibleGenes, length(genes.pathway))
+  expected <- (length(genes.eligible) / length(genes.background)) * background.overlap
+  enrichment.df$Expected[i] <- round(expected)
+
+  p <- phyper(eligible.overlap, length(genes.eligible), length(genes.background) - length(genes.eligible), background.overlap, lower.tail=FALSE )
   enrichment.df$pvalue[i] <- as.character(p)
+  
 }
 
 enrichment.df$pAdjusted <- p.adjust(enrichment.df$pvalue, method="bonferroni")

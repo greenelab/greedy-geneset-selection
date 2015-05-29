@@ -41,9 +41,6 @@ f = open(fname)
 
 #Read the first line and process it
 line = f.readline()
-if line.strip() == "[Term]":
-	numberProcesses = numberProcesses + 1
-	line = f.readline()
 	
 #Iterate through the remaining lines in the OBO file
 while line:

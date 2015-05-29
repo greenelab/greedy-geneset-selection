@@ -59,7 +59,7 @@ getImputationData <- function(fDir, fPatt, RNAseq=FALSE)
   results.combined <- do.call(rbind, results)
   if(! RNAseq)
   {
-    results.simple <- melt(results.combined[,c("TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Bonome.Spearman", "Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates")], id=c("Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates"))  
+    results.simple <- melt(results.combined[,c("TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Bonome.Spearman", "Goode.Spearman","Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates")], id=c("Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates"))  
   }
   else
   {
@@ -80,6 +80,7 @@ datasets <- unlist(lapply(levels(dat$variable), function(x){
   tmp <- strsplit(x, "\\.")
   return(unlist(tmp[[1]])[1])
 }))
+datasets[5] <- "Konecny"
 datasets.RNA <- gsub("\\.Spearman", "", levels(dat.RNA$variable))
 
 dat$Plottable.Datasetname <- factor(dat$variable, labels=datasets)
@@ -120,7 +121,7 @@ ggsave("Imputation/Figures/Quantile.No.Candidates.imputation.results.png", fig.t
 fig <- ggplot(dat[ dat$Candidates == "TCGA",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +
   theme_bw() + 
   stat_summary(fun.data="mean_cl_boot", geom="pointrange", size=3, width=0.4) +
-  facet_grid(Plottable.Datasetname ~ Plottable.Threshold) +  
+  facet_grid(Plottable.Datasetname ~ Plottable.Threshold, scales="free_y") +  
   xlab("Number of Measured Genes") +
   ylab("Correlation of Predicted and Actual Expression") +
   theme(axis.text.x=element_text(size=45), axis.text.y=element_text(size=45),
@@ -134,7 +135,7 @@ fig <- ggplot(dat[ dat$Candidates == "TCGA",], aes(as.numeric(NumberMeasuredGene
         strip.background = element_rect(color="black", fill="black", size=0.1, linetype="solid"),
         strip.text.x = element_text(color="white", face="bold", size=65),
         strip.text.y = element_text(color="white", face="bold", size=65, vjust=1))
-ggsave("Imputation/Figures/Quantile.TCGA.Candidates.imputation.results.png", fig, height=31, width=51, limitsize=FALSE)
+ggsave("Imputation/Figures/Quantile.TCGA.Candidates.imputation.results.png", fig, height=51, width=51, limitsize=FALSE)
 
 
 
