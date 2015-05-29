@@ -84,10 +84,12 @@ datasets[5] <- "Konecny"
 datasets.RNA <- gsub("\\.Spearman", "", levels(dat.RNA$variable))
 
 dat$Plottable.Datasetname <- factor(dat$variable, labels=datasets)
+dat$Plottable.DatasetnameII <- factor(dat$Plottable.Datasetname, levels=c("TCGA", "Konecny", "Yoshihara", "Tothill", "Bonome"))
 dat.RNA$Plottable.Datasetname <- factor(dat.RNA$variable, labels=datasets.RNA)
+dat.RNA$Plottable.DatasetnameII <- factor(dat.RNA$Plottable.Datasetname, labels=c("paste('TCGA RNAseq All Samples')", "paste('TCGA RNAseq Testing Partition')"))
 
-dat$Plottable.Threshold <- paste("|rP| = ", dat$CorrelationThreshold, sep="")
-dat.RNA$Plottable.Threshold <- paste("|rP| = ", dat.RNA$CorrelationThreshold, sep="")
+dat$Plottable.Threshold <- factor(dat$CorrelationThreshold, labels=c(bquote(abs(r[P]) >= "0.60"), bquote(abs(r[P]) >= "0.65"), bquote(abs(r[P]) >= "0.70"))) 
+dat.RNA$Plottable.Threshold <- factor(dat.RNA$CorrelationThreshold, labels=c(bquote(abs(r[P]) >= "0.60"), bquote(abs(r[P]) >= "0.65"), bquote(abs(r[P]) >= "0.70"))) 
 
 #````````````````````````````````````
 #Plot the no candidates results
@@ -96,7 +98,7 @@ dat.RNA$Plottable.Threshold <- paste("|rP| = ", dat.RNA$CorrelationThreshold, se
 fig <- ggplot(dat[ dat$Candidates == "None",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +
   theme_bw() +
   stat_summary(fun.data="mean_cl_boot", geom="pointrange", size=4, width=0.4) +
-  facet_grid(Plottable.Datasetname ~ Plottable.Threshold) +  
+  facet_grid(Plottable.DatasetnameII ~ Plottable.Threshold, scales="free_y", labeller=label_parsed) +  
   xlab("Number of Measured Genes") +
   ylab("Correlation of Predicted and Actual Expression") +
   theme(axis.text.x=element_text(size=45), axis.text.y=element_text(size=45),
@@ -111,7 +113,7 @@ fig.tmp <- fig + theme(panel.grid.major = element_line(colour = "grey", size = 2
                        strip.background = element_rect(color="black", fill="black", size=1, linetype="solid"),
                        strip.text.x = element_text(color="white", face="bold", size=65),
                        strip.text.y = element_text(color="white", face="bold", size=65))
-ggsave("Imputation/Figures/Quantile.No.Candidates.imputation.results.png", fig.tmp, height=31, width=51, limitsize=FALSE)
+ggsave("Imputation/Figures/Quantile.No.Candidates.imputation.results.png", fig.tmp, height=51, width=51, limitsize=FALSE)
 
 
 #````````````````````````````````````
@@ -121,7 +123,7 @@ ggsave("Imputation/Figures/Quantile.No.Candidates.imputation.results.png", fig.t
 fig <- ggplot(dat[ dat$Candidates == "TCGA",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +
   theme_bw() + 
   stat_summary(fun.data="mean_cl_boot", geom="pointrange", size=3, width=0.4) +
-  facet_grid(Plottable.Datasetname ~ Plottable.Threshold, scales="free_y") +  
+  facet_grid(Plottable.DatasetnameII ~ Plottable.Threshold, scales="free_y", labeller=label_parsed) +  
   xlab("Number of Measured Genes") +
   ylab("Correlation of Predicted and Actual Expression") +
   theme(axis.text.x=element_text(size=45), axis.text.y=element_text(size=45),
@@ -147,7 +149,7 @@ ggsave("Imputation/Figures/Quantile.TCGA.Candidates.imputation.results.png", fig
 fig <- ggplot(dat[ dat$Candidates == "Yoshihara",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +  
   theme_bw() +
   stat_summary(fun.data="mean_cl_boot", geom="pointrange", size=3, width=0.4) +
-  facet_grid(Plottable.Datasetname ~ Plottable.Threshold) +  
+  facet_grid(Plottable.DatasetnameII ~ Plottable.Threshold, scales="free_y", labeller=label_parsed) +  
   xlab("Number of Directly Measured Genes") +
   ylab("Correlation of Predicted and Actual Expression") +
   theme(axis.text.x=element_text(size=45), axis.text.y=element_text(size=45),
@@ -161,7 +163,7 @@ fig <- ggplot(dat[ dat$Candidates == "Yoshihara",], aes(as.numeric(NumberMeasure
         strip.background = element_rect(color="black", fill="black", size=0.1, linetype="solid"),
         strip.text.x = element_text(color="white", face="bold", size=65),
         strip.text.y = element_text(color="white", face="bold", size=65, vjust=1))
-ggsave("Imputation/Figures/Quantile.Yoshihara.Candidates.imputation.results.png", fig, height=31, width=51, limitsize=FALSE)
+ggsave("Imputation/Figures/Quantile.Yoshihara.Candidates.imputation.results.png", fig, height=51, width=51, limitsize=FALSE)
 
 
 
@@ -172,7 +174,7 @@ ggsave("Imputation/Figures/Quantile.Yoshihara.Candidates.imputation.results.png"
 fig <- ggplot(dat.RNA[dat.RNA$Candidates == "None",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +  
   theme_bw() +
   stat_summary(fun.data="mean_cl_boot", geom="pointrange", size=3, width=0.4) +
-  facet_grid(Plottable.Datasetname ~ Plottable.Threshold) +  
+  facet_grid(Plottable.DatasetnameII ~ Plottable.Threshold, labeller=label_parsed) +  
   xlab("Number of Directly Measured Genes") +
   ylab("Correlation of Predicted and Actual Expression") +
   theme(axis.text.x=element_text(size=45), axis.text.y=element_text(size=45),
