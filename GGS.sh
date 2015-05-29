@@ -37,10 +37,15 @@ Rscript Scripts/Inclusion_doppelgangR_v2.R
 echo "Creating Binary Correlation Matrices..."
 Rscript Scripts/Process_Data_args.R $BinTHRESH 2>> R.error.log
 
+#Process the OBO GO-slim file and use tribe.dartmouth.edu to get genelists
+#for each pathway
+python Scripts/OBO.py
+
 #Define genes eligible to either be directly meaured or predicted
+#and perform enrichment on the eligible genes for |rP| = 0.6 and redundancy = 1
 Rscript Scripts/Eligible.R
 
-#Perform Enrichment on the eligible genes for |rP| = 0.6 and redundancy = 1
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
