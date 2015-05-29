@@ -17,6 +17,10 @@ fname = "Data/goslim_generic.obo.txt"
 
 #This class will be used to hold the key pathway info as the OBO file is parsed. 
 class OBO:
+	"""The OBO format specifies a [Term] that contains the Go ID, name, 
+	namespace (i.e. biological_process, cellular_component etc.), and
+	definition (description)
+	"""
 	GO_namespace = None
 	GO_name = None
 	GO_ID = None
