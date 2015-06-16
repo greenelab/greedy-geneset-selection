@@ -31,9 +31,12 @@ corrMat2BinMat <- function(mat, thresh)
 
 #Get the directly measured genes when DM size = 400, Redundancy = 1, and Correlation Threshold = 0.7
 measured <- read.table("Data/Quantile.GGS.Parameter.Sweep.Results/genesets/TCGA.1.400.0.7.measured.txt", sep=",")[1,]
+measured.20 <- read.table("Data/Quantile.GGS.Parameter.Sweep.Results/genesets/TCGA.1.20.0.7.measured.txt", sep=",")[1,]
+
 
 #Get the predictable genes when DM size = 400, Redundancy = 1, and Correlation Threshold = 0.7
 predicted <- read.table("Data/Quantile.GGS.Parameter.Sweep.Results/genesets/TCGA.1.400.0.7.covered.txt", sep=",")[1,]
+predicted.20 <- read.table("Data/Quantile.GGS.Parameter.Sweep.Results/genesets/TCGA.1.20.0.7.covered.txt", sep=",")[1,]
 
 #get the good sample IDs
 tcga.samples <- read.csv("Data/SampleFilter/TCGA_eset_samplesRemoved_noDoppel.csv")
@@ -67,10 +70,15 @@ TCGA.cor.bin[upper.tri(TCGA.cor.bin, diag=T)] <- 0
 #Create the graph
 g <- graph.adjacency(TCGA.cor.bin)
 
-#Annotate each nodem (gene) to indicate whether it is measured, predicted, or NA
+#Annotate each nodem (gene) to indicate whether it is measured, predicted, or NA with 400 DM genes
 V(g)$Set <- "NA"
 V(g)$Set[V(g)$name %in% as.character(unlist(c(predicted[1,])))] <- "Predicted"
 V(g)$Set[V(g)$name %in% as.character(unlist(c(measured[1,])))] <- "Measured"
+
+#Annotate each nodem (gene) to indicate whether it is measured, predicted, or NA with 100 DM genes
+V(g)$Set20 <- "NA"
+V(g)$Set20[V(g)$name %in% as.character(unlist(c(predicted.20[1,])))] <- "Predicted"
+V(g)$Set20[V(g)$name %in% as.character(unlist(c(measured.20[1,])))] <- "Measured"
 
 #Indicate the color of each node (gene)
 V(g)$color <- ifelse(V(g)$Set == "Measured", "Red", "Blue")
