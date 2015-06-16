@@ -217,42 +217,11 @@ dev.off()
 TCGA.cor.bin <- corrMat2BinMat(TCGA.cor, 0.60)
 genes <- colnames(TCGA.cor.bin)[colSums(TCGA.cor.bin) > 1]
 genes.split <- unlist(strsplit(genes, "///"))
-write.table(genes.split, "genelist.quantile.filtered.0.6.1.txt", quote=F, col.names=F, row.names=F, sep="\n")
+write.table(genes.split, "Data/genelist.quantile.filtered.0.6.1.txt", quote=F, col.names=F, row.names=F, sep="\n")
+
+genes.expressed <- colnames(TCGA.cor)
+genes.expressed.split <- unlist(strsplit(genes.expressed, "///"))
+write.table(genes.expressed.split, "Data/truly.expressed.gene.list.txt", quote=F, col.names=F, row.names=F, sep="\n")
 
 
-#Read in the GO-slimo pathways 
-pathways <- read.csv2("Data/OBO.genelist.csv", header=F, sep=";")
 
-#Background genes
-enrichment.df <- data.frame(GO_ID=pathways[,1], Pathway=pathways[,2])
-
-enrichment.df$backgroundFreq <- NA
-enrichment.df$sampleFreq <- NA
-enrichment.df$Expected <- NA
-enrichment.df$pvalue <- NA
-
-genes.background <- unlist(strsplit(colnames(TCGA.cor.bin), "///"))
-genes.eligible <- genes.split
-for(i in 1:nrow(pathways))
-{
-  genes.pathway <- gsub(" ", "", unlist(strsplit(as.character(pathways[i,3]), ",")))
-  eligible.overlap <- length(intersect(genes.eligible, genes.pathway))
-  background.overlap <- length(intersect(genes.background, genes.pathway))
-  nAllGenes <- length(genes.background)
-  nEligibleGenes <- length(genes.eligible)
-  
-  enrichment.df$backgroundFreq[i] <- background.overlap
-  enrichment.df$sampleFreq[i] <- eligible.overlap
-  
-  expected <- (length(genes.eligible) / length(genes.background)) * background.overlap
-  enrichment.df$Expected[i] <- round(expected)
-
-  p <- phyper(eligible.overlap, length(genes.eligible), length(genes.background) - length(genes.eligible), background.overlap, lower.tail=FALSE )
-  enrichment.df$pvalue[i] <- as.character(p)
-  
-}
-
-enrichment.df$pAdjusted <- p.adjust(enrichment.df$pvalue, method="bonferroni")
-enrichment.df <- enrichment.df[order(enrichment.df$pAdjusted, decreasing=F),]
-
-write.table(enrichment.df, "Data/TCGA.1.0.6.eligible.GoSlim.enrichment.table.csv", quote=F, sep=",", row.names=F)
