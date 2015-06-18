@@ -3,30 +3,35 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Global variables
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#The following variables determine the parameters
+#of the workflow/parameter sweep
 
 #File to hold the error log
 err="GGS.error.log"
 
-#binary covariance matrix threshold
+#binary covariance matrix thresholds to use
 BinTHRESH="0.6 0.65 0.7"
 
 #number of genes to select
 NGENES="10 15 20 25 30 35 40 45 50 100 150 200 250 300 350 400"
 
-#number of correlated genes selected in order to consider covered
+#number of correlated genes selected in order to consider covered (redundancy)
 NFOLD="3 2 1"
 
-IMPUTATIONLIST=""
-CANDIDATEIMPUTATIONLIST=""
-
+#The following variables hold the candidate gene lists published by the TCGA and Yoshihara et al.
 YoshGeneList=`cat Data/Candidate.Genes/Yoshihara2012.sig.mapped.csv`
 TCGAGeneList=`cat Data/Candidate.Genes/TCGA2011.sig.mapped.csv`
 
+#The following should be initialized as empty but will be filled as the script runs
+IMPUTATIONLIST=""
+CANDIDATEIMPUTATIONLIST=""
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Inclusion/Exclusion of samples
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 echo "Creating Inclusion/Exclusion list of samples..."
+#The following script saves the doppelgangR results in the Data/doppelgangR/pairwiseSampleComparisons.tsv 
+#and the list of included samples for each dataset in the Data/SampleFilter/ folder
 Rscript Scripts/Inclusion_doppelgangR_v2.R
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,11 +40,15 @@ Rscript Scripts/Inclusion_doppelgangR_v2.R
 
 #Create the TCGA Affymetrix expression correlation matrices and plots
 echo "Creating Binary Correlation Matrices..."
+#The binary correlation matrix is saved in the Data/ folder
 Rscript Scripts/Process_Data_args.R $BinTHRESH 2>> R.error.log
 
 
 #Define genes eligible to either be directly meaured or predicted
 #and perform enrichment on the eligible genes for |rP| = 0.6 and redundancy = 1
+#The truly expressed genes which are used as the background for the enrichment analyses
+#are saved in Data/truly.expressed.gene.list.txt
+#The eligible genes are saved in Data/genelist.quantile.filtered.0.6.1.txt
 Rscript Scripts/Eligible.R
 
 
@@ -47,7 +56,7 @@ Rscript Scripts/Eligible.R
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Perform the Naive Gene selection using DM 
-#size of 400 and 
+#size of 400
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 for thresh in `echo $BinTHRESH`
 do
@@ -75,6 +84,7 @@ do
 			
 			echo Using TCGA.Quantile.cor.bin.$thresh.txt to Analyze $genes Genes at $fold fold coverage...
 			./GGS.py Data/TCGA.Quantile.cor.bin.$thresh.txt --fold=$fold --nGenes=$genes > Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.$fold.$genes.$thresh.results.txt 2>> GGS.error.log
+			#The following grep commands create a text file holding the directly measured genes and a text file holding the covered (predictable) genes
 			grep ^Final Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/genesets/TCGA.$fold.$genes.$thresh.measured.txt 2>> GGS.error.log
 			grep ^"Covered Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/genesets/TCGA.$fold.$genes.$thresh.covered.txt 2>> GGS.error.log
 
@@ -87,6 +97,7 @@ do
 				#GGS on Quantile TCGA with Yoshihara Gene List
 				echo Using Yoshihara Candidate Genes and TCGA.Quantile.cor.bin.$thresh.txt to Analyze $genes Genes at $fold fold coverage...
 				./GGS.py Data/TCGA.Quantile.candidates.cor.bin.$thresh.txt --fold=$fold --nGenes=$genes --candidates=$YoshGeneList > Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt 2>> GGS.error.log
+				#The following grep commands create a text file holding the directly measured genes and a text file holding the covered (predictable) genes
 				grep ^Final Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.measured.txt 2>> GGS.error.log
 				grep ^"Covered Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.covered.txt 2>> GGS.error.log
 
@@ -94,6 +105,7 @@ do
 				#GGS on Quantile TCGA with TCGA Gene List
 				echo Using TCGA Candidate Genes and TCGA.Quantile.cor.bin.$thresh.txt to Analyze $genes Genes at $fold fold coverage...
 				./GGS.py Data/TCGA.Quantile.candidates.cor.bin.$thresh.txt --fold=$fold --nGenes=$genes --candidates=$TCGAGeneList > Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt 2>> GGS.error.log
+				#The following grep commands create a text file holding the directly measured genes and a text file holding the covered (predictable) genes
 				grep ^Final Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.measured.txt 2>> GGS.error.log
 				grep ^"Covered Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.covered.txt 2>> GGS.error.log
 
