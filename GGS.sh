@@ -29,6 +29,13 @@ CANDIDATEIMPUTATIONLIST=""
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Inclusion/Exclusion of samples
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#This script is hardcoded to the doppelgangR download link at the time of publishing
+#and is included for convenience. It is recommended to install the latest doppelgangR 
+#from the Levi et al. github repository https://github.com/lwaldron/doppelgangR/
+#echo "Installing doppelgangR..."
+#Scripts/InstallDoppelgangR.sh
+
+
 echo "Creating Inclusion/Exclusion list of samples..."
 #The following script saves the doppelgangR results in the Data/doppelgangR/pairwiseSampleComparisons.tsv 
 #and the list of included samples for each dataset in the Data/SampleFilter/ folder
