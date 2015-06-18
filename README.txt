@@ -56,5 +56,7 @@ Used R libraries:
   curatedOvarianData 1.3.4
   igraph 0.7.1
   doppelgangR (https://github.com/lwaldron/doppelgangR)
-    For convenience, scripts are included in the GGS.sh bash file to help install doppelgangR but are commented out. It is recommended that you install the latest version from the github repository but the included scripts worked as of 6/18/15
+    For convenience, scripts are included in the GGS.sh bash file to help install doppelgangR but are
+    commented out. It is recommended that you install the latest version from the github repository
+    but the included scripts worked as of 6/18/15
 
