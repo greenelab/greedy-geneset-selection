@@ -100,9 +100,9 @@ getSummary <- function(covData, impData)
       #when using candidate gene sets alone, the size of DM may differ and will be captured by the nMeasured variable
       dirMeas <- thisDat$FakeNMeasured[j]
       trueDirMeas <- thisDat$nMeasured[j]
-      fold <- thisDat$Fold[j]
+      fold <- thisDat$FoldRedundancy[j]
       rawScore <- thisDat$Score[j]
-      covered <- thisDat$nCovered[j]
+      covered <- thisDat$nPredictable[j]
       
       filter <- thisDat$Filtering[j]
       candidate <- thisDat$Candidates[j]

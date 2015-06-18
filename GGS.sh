@@ -85,8 +85,8 @@ do
 			echo Using TCGA.Quantile.cor.bin.$thresh.txt to Analyze $genes Genes at $fold fold coverage...
 			./GGS.py Data/TCGA.Quantile.cor.bin.$thresh.txt --fold=$fold --nGenes=$genes > Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.$fold.$genes.$thresh.results.txt 2>> GGS.error.log
 			#The following grep commands create a text file holding the directly measured genes and a text file holding the covered (predictable) genes
-			grep ^Final Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/genesets/TCGA.$fold.$genes.$thresh.measured.txt 2>> GGS.error.log
-			grep ^"Covered Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/genesets/TCGA.$fold.$genes.$thresh.covered.txt 2>> GGS.error.log
+			grep ^"DM Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/genesets/TCGA.$fold.$genes.$thresh.measured.txt 2>> GGS.error.log
+			grep ^"Predictable Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/genesets/TCGA.$fold.$genes.$thresh.covered.txt 2>> GGS.error.log
 
 			IMPUTATIONLIST="$IMPUTATIONLIST TCGA.$fold.$genes.$thresh"
 
@@ -98,16 +98,16 @@ do
 				echo Using Yoshihara Candidate Genes and TCGA.Quantile.cor.bin.$thresh.txt to Analyze $genes Genes at $fold fold coverage...
 				./GGS.py Data/TCGA.Quantile.candidates.cor.bin.$thresh.txt --fold=$fold --nGenes=$genes --candidates=$YoshGeneList > Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt 2>> GGS.error.log
 				#The following grep commands create a text file holding the directly measured genes and a text file holding the covered (predictable) genes
-				grep ^Final Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.measured.txt 2>> GGS.error.log
-				grep ^"Covered Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.covered.txt 2>> GGS.error.log
+				grep ^"DM Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.measured.txt 2>> GGS.error.log
+				grep ^"Predictable Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/Yoshihara.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.covered.txt 2>> GGS.error.log
 
 				
 				#GGS on Quantile TCGA with TCGA Gene List
 				echo Using TCGA Candidate Genes and TCGA.Quantile.cor.bin.$thresh.txt to Analyze $genes Genes at $fold fold coverage...
 				./GGS.py Data/TCGA.Quantile.candidates.cor.bin.$thresh.txt --fold=$fold --nGenes=$genes --candidates=$TCGAGeneList > Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt 2>> GGS.error.log
 				#The following grep commands create a text file holding the directly measured genes and a text file holding the covered (predictable) genes
-				grep ^Final Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.measured.txt 2>> GGS.error.log
-				grep ^"Covered Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.covered.txt 2>> GGS.error.log
+				grep ^"DM Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.measured.txt 2>> GGS.error.log
+				grep ^"Predictable Genes:" Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/TCGA.$fold.$genes.$thresh.results.txt | cut -d " " -f 3- | sed -e 's/[ \t]*$//' | sed -e 's/\s/","/g' | sed -e 's/^/"/' | sed -e 's/$/"/' > Data/Quantile.GGS.Parameter.Sweep.Results/TCGA.Candidate.Genes/genesets/TCGA.$fold.$genes.$thresh.covered.txt 2>> GGS.error.log
 
 				CANDIDATEIMPUTATIONLIST="$CANDIDATEIMPUTATIONLIST Yoshihara.TCGA.$fold.$genes.$thresh TCGA.TCGA.$fold.$genes.$thresh"
 

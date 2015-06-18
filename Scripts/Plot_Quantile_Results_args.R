@@ -111,11 +111,11 @@ corrMat2BinMat <- function(mat, thresh)
 process_results <- function(fName, binLevel, plotName)
 {
 	GGS.results <- read.table(fname, sep="\t", header=T)
-	GGS.results$Redundancy <- factor(GGS.results$Fold)
+	GGS.results$Redundancy <- factor(GGS.results$FoldRedundancy)
 
 	fname <- paste("Figures/",plotName, binLevel, ".png", sep="")
 # 	png(fname)
-	ggplot(GGS.results, aes(x=nMeasured, y=nCovered, group=Redundancy,color=Redundancy)) + geom_line() + geom_point() +
+	ggplot(GGS.results, aes(x=nMeasured, y=nPredictable, group=Redundancy,color=Redundancy)) + geom_line() + geom_point() +
   		xlab("# Directly Measured Genes") + ylab("# Predictable Genes")
 # 	dev.off()
 
@@ -214,23 +214,23 @@ results.combined <- do.call("rbind", results)
 results.yoshihara.combined <- do.call("rbind", results.yoshihara)
 results.tcga.combined <- do.call("rbind", results.tcga)
 
-results.combined$eligible[results.combined$Threshold == "0.6" & results.combined$Fold == 1] <- getEligibleGenes(TCGA.quantile.cor, 0.6, 1)
-results.combined$eligible[results.combined$Threshold == "0.6" & results.combined$Fold == 2] <- getEligibleGenes(TCGA.quantile.cor, 0.6, 2)
-results.combined$eligible[results.combined$Threshold == "0.6" & results.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.cor, 0.6, 3)
+results.combined$eligible[results.combined$Threshold == "0.6" & results.combined$FoldRedundancy == 1] <- getEligibleGenes(TCGA.quantile.cor, 0.6, 1)
+results.combined$eligible[results.combined$Threshold == "0.6" & results.combined$FoldRedundancy == 2] <- getEligibleGenes(TCGA.quantile.cor, 0.6, 2)
+results.combined$eligible[results.combined$Threshold == "0.6" & results.combined$FoldRedundancy == 3] <- getEligibleGenes(TCGA.quantile.cor, 0.6, 3)
 
-results.combined$eligible[results.combined$Threshold == "0.65" & results.combined$Fold == 1] <- getEligibleGenes(TCGA.quantile.cor, 0.65, 1)
-results.combined$eligible[results.combined$Threshold == "0.65" & results.combined$Fold == 2] <- getEligibleGenes(TCGA.quantile.cor, 0.65, 2)
-results.combined$eligible[results.combined$Threshold == "0.65" & results.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.cor, 0.65, 3)
+results.combined$eligible[results.combined$Threshold == "0.65" & results.combined$FoldRedundancy == 1] <- getEligibleGenes(TCGA.quantile.cor, 0.65, 1)
+results.combined$eligible[results.combined$Threshold == "0.65" & results.combined$FoldRedundancy == 2] <- getEligibleGenes(TCGA.quantile.cor, 0.65, 2)
+results.combined$eligible[results.combined$Threshold == "0.65" & results.combined$FoldRedundancy == 3] <- getEligibleGenes(TCGA.quantile.cor, 0.65, 3)
 
-results.combined$eligible[results.combined$Threshold == "0.7" & results.combined$Fold == 1] <- getEligibleGenes(TCGA.quantile.cor, 0.7, 1)
-results.combined$eligible[results.combined$Threshold == "0.7" & results.combined$Fold == 2] <- getEligibleGenes(TCGA.quantile.cor, 0.7, 2)
-results.combined$eligible[results.combined$Threshold == "0.7" & results.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.cor, 0.7, 3)
+results.combined$eligible[results.combined$Threshold == "0.7" & results.combined$FoldRedundancy == 1] <- getEligibleGenes(TCGA.quantile.cor, 0.7, 1)
+results.combined$eligible[results.combined$Threshold == "0.7" & results.combined$FoldRedundancy == 2] <- getEligibleGenes(TCGA.quantile.cor, 0.7, 2)
+results.combined$eligible[results.combined$Threshold == "0.7" & results.combined$FoldRedundancy == 3] <- getEligibleGenes(TCGA.quantile.cor, 0.7, 3)
 
-results.combined$missed <- pmax(0, results.combined$eligible - (results.combined$nMeasured + results.combined$nCovered))
-results.combined$Redundancy <- factor(results.combined$Fold)
+results.combined$missed <- pmax(0, results.combined$eligible - (results.combined$nMeasured + results.combined$nPredictable))
+results.combined$Redundancy <- factor(results.combined$FoldRedundancy)
 results.combined$ThresholdII <- factor(results.combined$Threshold, labels=c(bquote(abs(r[P]) >= "0.60"), bquote(abs(r[P]) >= "0.65"), bquote(abs(r[P]) >= "0.70")))
 
-fig <- ggplot(results.combined, aes(x=nMeasured, y=nCovered, color=Redundancy)) + theme_bw() + 
+fig <- ggplot(results.combined, aes(x=nMeasured, y=nPredictable, color=Redundancy)) + theme_bw() + 
   geom_line() + geom_point(aes(shape=Redundancy)) +
   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
   facet_grid(~ ThresholdII, labeller=label_parsed) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
@@ -241,22 +241,22 @@ fig <- ggplot(results.combined, aes(x=nMeasured, y=nCovered, color=Redundancy)) 
 ggsave("Figures/CoverageByNumGenesMeasured.Quantile.png", fig, width=11, height=6)
 
 
-results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.6" & results.yoshihara.combined$Fold == 1] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.6, 1)
-results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.6" & results.yoshihara.combined$Fold == 2] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.6, 2)
-results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.6" & results.yoshihara.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.6, 3)
+results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.6" & results.yoshihara.combined$FoldRedundancy == 1] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.6, 1)
+results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.6" & results.yoshihara.combined$FoldRedundancy == 2] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.6, 2)
+results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.6" & results.yoshihara.combined$FoldRedundancy == 3] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.6, 3)
 
-results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.65" & results.yoshihara.combined$Fold == 1] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.65, 1)
-results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.65" & results.yoshihara.combined$Fold == 2] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.65, 2)
-results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.65" & results.yoshihara.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.65, 3)
+results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.65" & results.yoshihara.combined$FoldRedundancy == 1] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.65, 1)
+results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.65" & results.yoshihara.combined$FoldRedundancy == 2] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.65, 2)
+results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.65" & results.yoshihara.combined$FoldRedundancy == 3] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.65, 3)
 
-results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.7" & results.yoshihara.combined$Fold == 1] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.7, 1)
-results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.7" & results.yoshihara.combined$Fold == 2] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.7, 2)
-results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.7" & results.yoshihara.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.7, 3)
+results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.7" & results.yoshihara.combined$FoldRedundancy == 1] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.7, 1)
+results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.7" & results.yoshihara.combined$FoldRedundancy == 2] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.7, 2)
+results.yoshihara.combined$eligible[results.yoshihara.combined$Threshold == "0.7" & results.yoshihara.combined$FoldRedundancy == 3] <- getEligibleGenes(TCGA.quantile.yoshihara.candidates.cor, 0.7, 3)
 
-results.yoshihara.combined$missed <- pmax(0, results.yoshihara.combined$eligible - (results.yoshihara.combined$nMeasured + results.yoshihara.combined$nCovered))
+results.yoshihara.combined$missed <- pmax(0, results.yoshihara.combined$eligible - (results.yoshihara.combined$nMeasured + results.yoshihara.combined$nPredictable))
 results.yoshihara.combined$Redundancy <- factor(results.yoshihara.combined$Fold)
 results.yoshihara.combined$ThresholdII <- factor(results.yoshihara.combined$Threshold, labels=c(bquote(abs(r[P]) >= "0.60"), bquote(abs(r[P]) >= "0.65"), bquote(abs(r[P]) >= "0.70")))
-# fig <- ggplot(results.yoshihara.combined, aes(x=nMeasured, y=nCovered, color=Redundancy)) + theme_bw() +
+# fig <- ggplot(results.yoshihara.combined, aes(x=nMeasured, y=nPredictable, color=Redundancy)) + theme_bw() +
 #   geom_line() + geom_point(aes(shape=Redundancy)) +
 #   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
 #   facet_wrap(~ Threshold) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
@@ -264,22 +264,22 @@ results.yoshihara.combined$ThresholdII <- factor(results.yoshihara.combined$Thre
 # ggsave("Figures/CoverageByNumGenesMeasured.Quantile.Yoshihara.Candidate.Genes.png", fig, width=11, height=6)
 
 
-results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.6" & results.tcga.combined$Fold == 1] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.6, 1)
-results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.6" & results.tcga.combined$Fold == 2] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.6, 2)
-results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.6" & results.tcga.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.6, 3)
+results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.6" & results.tcga.combined$FoldRedundancy == 1] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.6, 1)
+results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.6" & results.tcga.combined$FoldRedundancy == 2] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.6, 2)
+results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.6" & results.tcga.combined$FoldRedundancy == 3] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.6, 3)
 
-results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.65" & results.tcga.combined$Fold == 1] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.65, 1)
-results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.65" & results.tcga.combined$Fold == 2] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.65, 2)
-results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.65" & results.tcga.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.65, 3)
+results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.65" & results.tcga.combined$FoldRedundancy == 1] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.65, 1)
+results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.65" & results.tcga.combined$FoldRedundancy == 2] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.65, 2)
+results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.65" & results.tcga.combined$FoldRedundancy == 3] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.65, 3)
 
-results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.7" & results.tcga.combined$Fold == 1] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.7, 1)
-results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.7" & results.tcga.combined$Fold == 2] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.7, 2)
-results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.7" & results.tcga.combined$Fold == 3] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.7, 3)
+results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.7" & results.tcga.combined$FoldRedundancy == 1] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.7, 1)
+results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.7" & results.tcga.combined$FoldRedundancy == 2] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.7, 2)
+results.tcga.combined$eligible[results.tcga.combined$Threshold == "0.7" & results.tcga.combined$FoldRedundancy == 3] <- getEligibleGenes(TCGA.quantile.tcga.candidates.cor, 0.7, 3)
 
-results.tcga.combined$missed <- pmax(results.tcga.combined$eligible - (results.tcga.combined$nMeasured + results.tcga.combined$nCovered), 0)
+results.tcga.combined$missed <- pmax(results.tcga.combined$eligible - (results.tcga.combined$nMeasured + results.tcga.combined$nPredictable), 0)
 results.tcga.combined$Redundancy <- factor(results.tcga.combined$Fold)
 results.tcga.combined$ThresholdII <- factor(results.tcga.combined$Threshold, labels=c(bquote(abs(r[P]) >= "0.60"), bquote(abs(r[P]) >= "0.65"), bquote(abs(r[P]) >= "0.70")))
-# fig <- ggplot(results.tcga.combined, aes(x=nMeasured, y=nCovered, group=Fold,color=Redundancy)) + theme_bw() +
+# fig <- ggplot(results.tcga.combined, aes(x=nMeasured, y=nPredictable, group=Fold,color=Redundancy)) + theme_bw() +
 #   geom_line() + geom_point(aes(shape=Redundancy)) +
 #   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
 #   facet_wrap(~ Threshold) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +
@@ -293,7 +293,7 @@ results.candidates.combined$Candidates <- "Yoshihara"
 results.candidates.combined$Candidates[1:nrow(results.tcga.combined)] <- "TCGA"
 results.candidates.combined$CandidatesII <- factor(results.candidates.combined$Candidates, levels=c("Yoshihara", "TCGA"))
 
-fig <- ggplot(results.candidates.combined, aes(x=nMeasured, y=nCovered, group=Fold,color=Redundancy)) + theme_bw() +
+fig <- ggplot(results.candidates.combined, aes(x=nMeasured, y=nPredictable, group=FoldRedundancy,color=Redundancy)) + theme_bw() +
   geom_line() + geom_point(aes(shape=Redundancy)) +
   geom_line(aes(x=nMeasured, y=missed, color=Redundancy), linetype="dotted", size=1) + 
   facet_grid(CandidatesII ~ ThresholdII, labeller=label_parsed) + xlab("# Directly Measured Genes") + ylab("# Predictable Genes") +

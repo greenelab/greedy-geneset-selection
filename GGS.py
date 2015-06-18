@@ -1,20 +1,17 @@
 #!/usr/bin/env python
 """
 Usage:
-	GGS.py <CorrelationMatrix> [--fold=<FOLD>] [--nGenes=<NG>] [--candidates=<CG>] [--permutations=<PERM>] [--seed=<SEED>] [--cpus=<NPROCESSES>]
+	GGS.py <CorrelationMatrix> [--fold=<FOLD>] [--nGenes=<NG>] [--candidates=<CG>]  
 	GGS.py -h | --help
 	GGS.py --version
 
 Options:
 	-h --help 			  Show this screen.
 	--version 			  Show the version.
-	--fold=<FOLD>			  The minimum number of genes in the solution that must correlate with a specific gene in order for it to be considered covered.
-        --nGenes=<NG> 			  Number of genes in solution excluding candidate genes
+	--fold=<FOLD>			  Redundancy: the minimum number of genes in the solution that must correlate with a specific gene in order for it to be considered covered.
+        --nGenes=<NG> 			  Number of directly measured genes in solution excluding candidate genes
 	--candidates=<CG>		  Candidate Gene Set
-	--permutations=<PERM>		The number of random gene sets to draw in order to estimate a p-value for the selected solution
-	--seed=<SEED>			Random seed; needed to ensure reproducibility of permutation testing
-	--cpus=<NPROCESSES>		  Number of independent processes to use for fitness evaluation
-	--log=<FILE>		  File to which EGS will output evolution statistics
+
 
 """
 
@@ -28,7 +25,7 @@ Options:
 #GLOBAL VARIABLES
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-VERSION = '0.0.1-alpha'
+VERSION = '0.0.1'
 VERBOSE = True
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,10 +54,8 @@ data_const = None		#An unchanged version of data
 candidates = None		#Holds the indeces for the candidate genes supplied
 arguments = None		#Holds the command line arguments.
 global FOLD 
-FOLD= None
-permutations = 0	
-global SEED 
-SEED = 0
+FOLD= None  			#Holds the fold redundancy to use to determine predictable genes
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -138,8 +133,7 @@ class corMat:
 def print_runtime_params():
 	global arguments
 	print("Binary Correlation Matrix: " + str(arguments['<CorrelationMatrix>']))
-	print("Fold Coverage: " + str(arguments['--fold']))
-	print("CPUs: " + str(arguments['--cpus']))
+	print("Fold Redundancy: " + str(arguments['--fold']))
 	print("Number of Genes: " + str(arguments['--nGenes']))
 	print("Candidate Genes: " + str(arguments['--candidates']))
 	print("-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ")
@@ -217,7 +211,7 @@ def simpleGreedy(matrix_size, soln_set_size, candidate_gene_idxs=None):
 	return result_dict
 
 
-def main_run(corr_matrix_location, requested_num_genes, candidate_genes, perms=0):
+def main_run(corr_matrix_location, requested_num_genes, candidate_genes):
 
 	#Output command line options
 	print_runtime_params()
@@ -262,37 +256,25 @@ def main_run(corr_matrix_location, requested_num_genes, candidate_genes, perms=0
 		print(str(time() - t0) + " seconds")
 		sys.stdout.flush()
 
-	message = "Final Genes: "
+	print("")
+	message = "DM Genes: "
 	for g in resulting_genes:
 		message += str(data.header[g]) + " "
 	print(message)
 	
 	covered_genes = [data.header[j] for j in fold_counter if fold_counter[j] >= FOLD]
 	measured_genes = [data.header[j] for j in resulting_genes]
-	message2 = "Covered Genes: "
+	print("")
+	message2 = "Predictable Genes: "
 	for g in covered_genes:
 		message2 += str(g) + " "
 	print(message2)
-	print("Score: " + str(score))
 
+	#This score is the number of predictable genes; i.e. the extra expression information captured
 	score_true = len(set(covered_genes).difference(set(measured_genes)))
-	print("True Score: " + str(score_true))
-
-	if perms > 0:
-		print("Performing permutation test...")
-		rand.seed(SEED)
-		res_list = []
-		for p in xrange(perms):
-			gene_set = rand.sample(xrange(len(data.data)), requested_num_genes)
-			res = get_set_coverage(gene_set)
-			res_list.append(res)
-			percent_complete = float((float((p + 1) / perms)) * 100)
-			print(str(percent_complete) + " %                  \r"),
-			sys.stdout.flush()
-
-		pval = float(len([x for x in res_list if res_list[x] >= score_true]) / perms)
-		print("\nPermuted Scores: " + str(res_list))
-		print("P-value: " + str(pval))
+	print("")
+	print("Score: " + str(score_true))
+	print("")
 
 	return(0)
 
@@ -329,11 +311,5 @@ if __name__ == "__main__": #This helps to ensure Windows compatability, reads do
     candidate_genes = arguments['--candidates']
 
 
-    if arguments['--permutations'] is not None:
-    	permutations = int(arguments['--permutations'])
 
-    	if arguments['--seed'] is not None:
-    		#global SEED
-    		SEED = int(arguments['--seed'])
-
-    main_run(corr_matrix, requested_num_genes, candidate_genes, permutations)
+    main_run(corr_matrix, requested_num_genes, candidate_genes)
