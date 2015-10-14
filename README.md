@@ -28,10 +28,7 @@ python GGS.py -h
 
 
 
-Also included in this repository is the workflow used for analyses
-and figures for the GGS manuscript (excluding those using non-public 
-data from Konecny et al.) The bash script GGS.sh runs analyses 
-sequentially and produces plots. Seperate and confirmatory analyses were performed using TCGA RNAseq data and R scripts for these are located in the scripts subdirectory (). 
+Also included in this repository is the workflow used for analyses and figures for the GGS manuscript (excluding those using non-public data from Konecny et al.) The bash script GGS.sh runs analyses sequentially and produces plots. Seperate and confirmatory analyses were performed using TCGA RNAseq data and R scripts for these are located in the BrCa subdirectory. 
 
 ##Dependencies
 
