@@ -1,8 +1,8 @@
 #Greedy Geneset Selection
 
-#### By [James Rudd](http://www.dartmouth.edu/~doherty/personnel.html) and [Casey Greene](http://www.greenelab.com/)
+#### By [James Rudd](http://www.dartmouth.edu/~doherty/personnel.html), [Rene A. Zelaya](http://www.greenelab.com/lab-members), and [Casey Greene](http://www.greenelab.com/)
 
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.30105.svg)](http://dx.doi.org/10.5281/zenodo.30105)
+[![DOI](https://zenodo.org/badge/18768/greenelab/greedy-geneset-selection.svg)](https://zenodo.org/badge/latestdoi/18768/greenelab/greedy-geneset-selection)
 
 ## Description
 
@@ -61,7 +61,7 @@ R libraries used:
 -  curatedOvarianData 1.3.4
 -  igraph 0.7.1
 - RTCGAToolbox 1.99.4
--  doppelgangR (https://github.com/lwaldron/doppelgangR)
+-  doppelgangR (https://github.com/lwaldron/doppelgangR  last tested using commit sha: f0e02bca770efab4671a8290cd2580f0ec5cc674)
     
 
 For convenience, scripts are included in the GGS.sh bash file to help install doppelgangR but are commented out. It is recommended that you install the latest version from the github repository but the included scripts worked as of 6/18/15
