@@ -25,6 +25,7 @@ library(survcomp)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 SEED <- 0
 set.seed(SEED)
+useMayo <- FALSE
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -245,6 +246,16 @@ gc()
 # rm(GSE51088_eset, Karlan.samples)
 # gc()
 
+if(useMayo)
+{
+  
+  #Let's get the Mayo data
+  Mayo <- read.csv("Data/MayoDataWithMap_Normalizer.txt", sep="\t")
+  #load the good samples
+  mayo.samples <- read.csv("Data/SampleFilter/Mayo_samplesRemoved.csv")
+  Mayo <- Mayo[,as.character(mayo.samples$x)]
+  
+}
 
 #Let's get the TCGA RNAseq data
 data(TCGA.RNASeqV2_eset)
@@ -338,6 +349,10 @@ for(k in 1:length(args))
   #Subset to only the measured genes
   Tothill.measured <- normalize.JR(Tothill[measured.genes,])
   Yoshihara.measured <- normalize.JR(Yoshihara[intersect(measured.genes, rownames(Yoshihara)),])
+  if(useMayo)
+  {
+    Mayo.measured <- normalize.JR(Mayo[intersect(measured.genes,rownames(Mayo)),])
+  }
   Bonome.measured <- normalize.JR(Bonome[measured.genes,])
   TCGA.RNA.measured <- normalize.JR(TCGA.RNA[intersect(measured.genes, rownames(TCGA.RNA)),])
   TCGA.RNA.measured.testingSubset <- normalize.JR(TCGA.RNA[intersect(measured.genes, rownames(TCGA.RNA)),intersect(testingSamples, colnames(TCGA.RNA))])
@@ -404,6 +419,12 @@ for(k in 1:length(args))
     #We need to test whether the covered and 'tag' genes are present in the Yoshihara dataset
     prediction.Yoshihara <- predictExpression(tags, thisGene, Yoshihara, model, Yoshihara.measured)
     
+    if(useMayo)
+    {
+      #We need to test whether the covered and 'tag' genes are present in the Mayo dataset
+      prediction.Mayo <- predictExpression(tags, thisGene, Mayo, model, Mayo.measured)
+    }
+    
     #We need to test whether the covered and 'tag' genes are present in the TCGA RNAseq dataset
     prediction.TCGA.RNA <- predictExpression(tags, thisGene, TCGA.RNA, model, TCGA.RNA.measured)
     prediction.TCGA.RNA.testingSubset <- predictExpression(tags, thisGene, TCGA.RNA[,intersect(testingSamples, colnames(TCGA.RNA))], model, TCGA.RNA.measured.testingSubset)
@@ -411,9 +432,18 @@ for(k in 1:length(args))
     prediction.TCGA.RNA.ln <- predictExpression(tags, thisGene, TCGA.RNA.ln, model, TCGA.RNA.ln.measured)    
     prediction.TCGA.RNA.ln.testingSubset <- predictExpression(tags, thisGene, TCGA.RNA.ln[,intersect(testingSamples, colnames(TCGA.RNA.ln))], model, TCGA.RNA.ln.measured.testingSubset)
     
+    if(useMayo)
+    {
+      result <- rbind(result, c(thisGene, length(tags), prediction.TCGA, prediction.Tothill, prediction.Yoshihara, prediction.Mayo, prediction.Bonome, 
+                                prediction.TCGA.RNA, prediction.TCGA.RNA.testingSubset, prediction.TCGA.RNA.ln, prediction.TCGA.RNA.ln.testingSubset))
+    }
     
-    result <- rbind(result, c(thisGene, length(tags), prediction.TCGA, prediction.Tothill, prediction.Yoshihara, prediction.Bonome, prediction.Goode, 
-                              prediction.TCGA.RNA, prediction.TCGA.RNA.testingSubset, prediction.TCGA.RNA.ln, prediction.TCGA.RNA.ln.testingSubset))
+    if(!useMayo)
+    {
+      result <- rbind(result, c(thisGene, length(tags), prediction.TCGA, prediction.Tothill, prediction.Yoshihara, prediction.Bonome, 
+                                prediction.TCGA.RNA, prediction.TCGA.RNA.testingSubset, prediction.TCGA.RNA.ln, prediction.TCGA.RNA.ln.testingSubset))
+    }
+    
     progress <- paste((i / length(covered.genes) ) * 100, "%    \r")
     cat(progress)
   }
@@ -421,9 +451,18 @@ for(k in 1:length(args))
   result <- data.frame(result)
   rownames(result) <- result[,1]
   result <- result[,-1]
-  colnames(result) <- c("nTagGenes", "TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman",
-                        "Bonome.Spearman", "TCGA.RNAseq.Spearman", "TCGA.RNAseq.testing.Spearman",
-                        "TCGA.RNAseq.ln.Spearman", "TCGA.RNAseq.ln.testing.Spearman")
+  if(useMayo)
+  {
+    colnames(result) <- c("nTagGenes", "TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Mayo.Spearman",
+                          "Bonome.Spearman", "TCGA.RNAseq.Spearman", "TCGA.RNAseq.testing.Spearman",
+                          "TCGA.RNAseq.ln.Spearman", "TCGA.RNAseq.ln.testing.Spearman")
+  }
+  if(!useMayo)
+  {
+    colnames(result) <- c("nTagGenes", "TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", 
+                          "Bonome.Spearman", "TCGA.RNAseq.Spearman", "TCGA.RNAseq.testing.Spearman",
+                          "TCGA.RNAseq.ln.Spearman", "TCGA.RNAseq.ln.testing.Spearman")
+  }
   
 
   
