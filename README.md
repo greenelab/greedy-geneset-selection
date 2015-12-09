@@ -2,7 +2,7 @@
 
 #### By [James Rudd](http://www.dartmouth.edu/~doherty/personnel.html), [Rene A. Zelaya](http://www.greenelab.com/lab-members), and [Casey Greene](http://www.greenelab.com/)
 
-[![DOI](https://zenodo.org/badge/18768/greenelab/greedy-geneset-selection.svg)](https://zenodo.org/badge/latestdoi/18768/greenelab/greedy-geneset-selection)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.35086.svg)](http://dx.doi.org/10.5281/zenodo.35086)
 
 ## Description
 
