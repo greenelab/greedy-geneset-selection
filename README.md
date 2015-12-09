@@ -65,3 +65,5 @@ R libraries used:
     
 
 For convenience, scripts are included in the GGS.sh bash file to help install doppelgangR but are commented out. It is recommended that you install the latest version from the github repository but the included scripts worked as of 6/18/15
+
+[![Analytics](https://ga-beacon.appspot.com/UA-20583020-7/greenelab/greedy-geneset-selection/README?pixel)](https://github.com/igrigorik/ga-beacon)
