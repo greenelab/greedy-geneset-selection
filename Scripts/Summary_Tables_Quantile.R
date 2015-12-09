@@ -100,7 +100,8 @@ getSummary <- function(covData, impData)
       #when using candidate gene sets alone, the size of DM may differ and will be captured by the nMeasured variable
       dirMeas <- thisDat$FakeNMeasured[j]
       trueDirMeas <- thisDat$nMeasured[j]
-      fold <- thisDat$FoldRedundancy[j]
+      #fold <- thisDat$FoldRedundancy[j]
+      fold <- thisDat$Fold[j]
       rawScore <- thisDat$Score[j]
       covered <- thisDat$nPredictable[j]
       
@@ -126,13 +127,14 @@ getSummary <- function(covData, impData)
   cat("                                                         \n")
   
   summaryTable <- data.frame(summaryTable)
+
   summaryTable <- summaryTable[order(summaryTable$Filtering, summaryTable$Candidates, as.numeric(paste(summaryTable$CorrelationThreshold)), as.numeric(paste(summaryTable$Redundancy)), as.numeric(paste(summaryTable$NumberDirectlyMeasured))),]
   #summaryTable <- summaryTable[,c(12,13,8,10,9,11,1,2,3,7,4,5,6)]
   #summaryTableColumnOrder <- c("Filtering", "Candidates", "CorrelationThreshold", "Redundancy", "NumberDirectlyMeasured", "TrueNumberMeasuredGenes", "NumberPredicted", "TrueNumberPredictedGenes", "TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Goode.Spearman", "Bonome.Spearman")
   cols <- colnames(summaryTable)[grep("Spearman", colnames(summaryTable))]
   cols.prop <- colnames(summaryTable)[grep("proportion", colnames(summaryTable))]
-  
-  summaryTableColumnOrder <- c("Filtering", "Candidates", "CorrelationThreshold", "Redundancy", "NumberDirectlyMeasured", "NumberPredicted", "TrueNumberPredictedGenes", cols, cols.prop)
+  #summaryTableColumnOrder <- c("Filtering", "Candidates", "CorrelationThreshold", "Redundancy", "NumberDirectlyMeasured", "NumberPredicted", "TrueNumberPredictedGenes", cols, cols.prop)
+  summaryTableColumnOrder <- c("Filtering", "Candidates", "CorrelationThreshold", "Redundancy", "NumberDirectlyMeasured", "TrueNumberPredictedGenes", cols, cols.prop)
   summaryTable <- summaryTable[,summaryTableColumnOrder]
   
   #print(names(predAcc))

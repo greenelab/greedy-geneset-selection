@@ -59,7 +59,7 @@ getImputationData <- function(fDir, fPatt, RNAseq=FALSE)
   results.combined <- do.call(rbind, results)
   if(! RNAseq)
   {
-    results.simple <- melt(results.combined[,c("TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Bonome.Spearman", "Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates")], id=c("Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates"))  
+    results.simple <- melt(results.combined[,c("TCGA.Spearman", "Tothill.Spearman", "Yoshihara.Spearman", "Mayo.Spearman","Bonome.Spearman", "Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates")], id=c("Redundancy", "CorrelationThreshold", "NumberMeasuredGenes", "Candidates"))  
   }
   else
   {
@@ -83,7 +83,7 @@ datasets <- unlist(lapply(levels(dat$variable), function(x){
 datasets.RNA <- gsub("\\.Spearman", "", levels(dat.RNA$variable))
 
 dat$Plottable.Datasetname <- factor(dat$variable, labels=datasets)
-dat$Plottable.DatasetnameII <- factor(dat$Plottable.Datasetname, levels=c("TCGA", "Yoshihara", "Tothill", "Bonome"))
+dat$Plottable.DatasetnameII <- factor(dat$Plottable.Datasetname, levels=c("TCGA", "Mayo","Yoshihara", "Tothill", "Bonome"))
 dat.RNA$Plottable.Datasetname <- factor(dat.RNA$variable, labels=datasets.RNA)
 dat.RNA$Plottable.DatasetnameII <- factor(dat.RNA$Plottable.Datasetname, labels=c("paste('TCGA RNAseq All Samples')", "paste('TCGA RNAseq Testing Partition')"))
 
@@ -94,17 +94,38 @@ dat.RNA$Plottable.Threshold <- factor(dat.RNA$CorrelationThreshold, labels=c(bqu
 #Plot the no candidates results
 #````````````````````````````````````
 
+# fig <- ggplot(dat[ dat$Candidates == "None",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +
+#   theme_bw() +
+#   stat_summary(fun.data="mean_cl_boot", geom="pointrange", size=4, width=0.4) +
+#   facet_grid(Plottable.DatasetnameII ~ Plottable.Threshold, scales="free_y", labeller=label_parsed) +  
+#   xlab("Number of Measured Genes") +
+#   ylab("Correlation of Predicted and Actual Expression") +
+#   theme(axis.text.x=element_text(size=45), axis.text.y=element_text(size=45),
+#         axis.title.x=element_text(size=50, vjust=-3, face="bold"), axis.title.y=element_text(size=50, vjust=3, face="bold"),
+#         legend.title=element_text(size=50, face="bold"), legend.text = element_text(size=30, face="bold"),
+#         legend.key.height=unit(5,"line"), legend.key.width=unit(5,"line"),
+#         plot.margin = unit(c(1,6,1,6), "cm"),
+#         panel.border = element_rect(colour="black", fill=NA, size=5))
+# 
+# fig.tmp <- fig + theme(panel.grid.major = element_line(colour = "grey", size = 2, linetype = 'solid'),
+#                        panel.margin = unit(1, "lines"),
+#                        strip.background = element_rect(color="black", fill="black", size=1, linetype="solid"),
+#                        strip.text.x = element_text(color="white", face="bold", size=65),
+#                        strip.text.y = element_text(color="white", face="bold", size=65))
+# ggsave("Imputation/Figures/Quantile.No.Candidates.imputation.results.png", fig.tmp, height=51, width=51, limitsize=FALSE)
+# ggsave("Imputation/Figures/Quantile.No.Candidates.imputation.results.pdf", fig.tmp, height=51, width=51, limitsize=FALSE)
+
+dat$Redundancy <- factor(dat$Redundancy, labels=c("  1          ", "  2          ", "  3          "))
 fig <- ggplot(dat[ dat$Candidates == "None",], aes(as.numeric(NumberMeasuredGenes), value, color=Redundancy, shape=Redundancy)) +
   theme_bw() +
   stat_summary(fun.data="mean_cl_boot", geom="pointrange", size=4, width=0.4) +
-  facet_grid(Plottable.DatasetnameII ~ Plottable.Threshold, scales="free_y", labeller=label_parsed) +  
+  facet_grid(Plottable.DatasetnameII ~ Plottable.Threshold, labeller=label_parsed) +  
   xlab("Number of Measured Genes") +
   ylab("Correlation of Predicted and Actual Expression") +
   theme(axis.text.x=element_text(size=45), axis.text.y=element_text(size=45),
         axis.title.x=element_text(size=50, vjust=-3, face="bold"), axis.title.y=element_text(size=50, vjust=3, face="bold"),
-        legend.title=element_text(size=50, face="bold"), legend.text = element_text(size=30, face="bold"),
-        legend.key.height=unit(5,"line"), legend.key.width=unit(5,"line"),
-        plot.margin = unit(c(1,6,1,6), "cm"),
+        legend.title=element_text(size=50, face="bold"), legend.text = element_text(size=50, face="bold"),
+        plot.margin = unit(c(1,6,11,6), "cm"),
         panel.border = element_rect(colour="black", fill=NA, size=5))
 
 fig.tmp <- fig + theme(panel.grid.major = element_line(colour = "grey", size = 2, linetype = 'solid'),
@@ -112,8 +133,10 @@ fig.tmp <- fig + theme(panel.grid.major = element_line(colour = "grey", size = 2
                        strip.background = element_rect(color="black", fill="black", size=1, linetype="solid"),
                        strip.text.x = element_text(color="white", face="bold", size=65),
                        strip.text.y = element_text(color="white", face="bold", size=65))
-ggsave("Imputation/Figures/Quantile.No.Candidates.imputation.results.png", fig.tmp, height=51, width=51, limitsize=FALSE)
 
+fig.tmp2 <- fig.tmp + theme(legend.direction = "horizontal", legend.position=c(0.5, -0.08),
+                            legend.key=element_rect(size=10, colour="white"), legend.key.size=unit(13.5, "lines"))
+ggsave("Imputation/Figures/Quantile.No.Candidates.imputation.results.pdf", fig.tmp2, height=51, width=51, limitsize=FALSE)
 
 #````````````````````````````````````
 #Plot the TCGA candidates results

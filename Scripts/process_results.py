@@ -71,23 +71,24 @@ for this_file in glob.glob("*" + matchString):
 
 
 		#Get the selected Gene List
-		if line.startswith('Final Genes: '):
+		if line.startswith('DM Genes: '):
 			measured_genes = set(line.strip().split(" ")[2:])  #Start with index 2 to skip the 'Final Genes: '
 			print("\t...Found Measured Genes")
 			
 
 		#Get the covered Gene List
-		elif line.startswith('Covered Genes: '):
+		elif line.startswith('Predictable Genes: '):
 			covered_genes = set(line.strip().split(" ")[2:])  #Start with index 2 to skip the 'Covered Genes: '
 			print("\t...Found Covered Genes")
 
 		#Get the fold coverage
-		elif line.startswith('Fold Coverage: '):
+		elif line.startswith('Fold Redundancy: '):
 			fold = int(line.strip().split(" ")[2])
+	
 
 	if(measured_genes != None and covered_genes != None):
 		additional_genes_covered = covered_genes.difference(measured_genes)
-
+		
 		summary_info.append([len(measured_genes), fold, len(covered_genes), len(additional_genes_covered), fakeNumMeasuredGenes])
 
 
